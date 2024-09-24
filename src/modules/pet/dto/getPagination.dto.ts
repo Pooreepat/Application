@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export default class GetProfilePaginationDto {
+export default class GetPetPaginationDto {
   @ApiProperty({
     required: false,
     type: Number,

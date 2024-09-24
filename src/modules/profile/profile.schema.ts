@@ -8,28 +8,27 @@ export type ProfileDocument = Profile & Document;
 @Schema({ timestamps: true })
 export class Profile {
   @Prop({
-    required: true,
     unique: true,
-    default: () => RandomNumber.generateRandomNumber(6).toString(),
+    default: () => RandomNumber.generateRandomNumber(14).toString(),
   })
   _numberId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   _userId: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   phone: string;
 
-  @Prop([String])
+  @Prop({ type: [String], required: true })
   images: string[];
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   firstname: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   lastname: string;
 
-  @Prop()
+  @Prop({ type: Date, reuqired: true })
   birthdayAt: Date;
 
   @Prop({ type: String, enum: AccommodationType })
@@ -38,17 +37,19 @@ export class Profile {
   @Prop({ type: Number, min: 0, max: 4 })
   level: number;
 
-  @Prop()
+  @Prop({ type: Number, min: 0, max: 1000 })
   distance: number;
 
-  @Prop()
+  @Prop({ type: Number, min: 0, max: 24 })
   freeTime: number;
 
-  @Prop([String])
+  @Prop({ type: [String] })
   personality: string[];
 
-  @Prop()
+  @Prop({ type: String })
   lifestyle: string;
+
+  _id?: Types.ObjectId;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

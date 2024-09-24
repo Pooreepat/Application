@@ -2,12 +2,12 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpResponsePagination } from 'src/interface/respones';
 import GetProfilePaginationDto from '../dto/getPagination.dto';
-import { ProfileService } from '../profile.service';
+import { PetService } from '../pet.service';
 
 @Injectable()
-export class GetProfilePaginationUsecase {
+export class GetPetPaginationUsecase {
   constructor(
-    private readonly profileService: ProfileService,
+    private readonly petService: PetService,
     readonly configService: ConfigService,
   ) {}
 
@@ -19,15 +19,12 @@ export class GetProfilePaginationUsecase {
       const perPage = Number(data.perPage) || 10;
 
       const skip = (page - 1) * perPage;
-      const [profiles, total] = await this.profileService.getPagination(
-        skip,
-        perPage,
-      );
-      if (!profiles) {
+      const [pets, total] = await this.petService.getPagination(skip, perPage);
+      if (!pets) {
         throw new HttpException('ไม่พบข้อมูล', 404);
       }
       return {
-        data: profiles,
+        data: pets,
         total,
         page,
         perPage,

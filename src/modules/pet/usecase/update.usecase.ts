@@ -1,14 +1,15 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpRespons } from 'src/interface/respones';
-import { ProfileService } from '../profile.service';
+import { HttpRespons, HttpResponsePagination } from 'src/interface/respones';
+import GetProfilePaginationDto from '../dto/getPagination.dto';
 import UpdateProfileDto from '../dto/update.dto';
 import { Types } from 'mongoose';
+import { PetService } from '../pet.service';
 
 @Injectable()
-export class UpdateProfileUsecase {
+export class UpdatePetUsecase {
   constructor(
-    private readonly profileService: ProfileService,
+    private readonly petService: PetService,
     readonly configService: ConfigService,
   ) {}
 
@@ -16,7 +17,7 @@ export class UpdateProfileUsecase {
     data: UpdateProfileDto & { id: string | Types.ObjectId },
   ): Promise<HttpRespons> {
     try {
-      const profile = await this.profileService.updateProfile(data.id, data);
+      const profile = await this.petService.updatePet(data.id, data);
 
       if (!profile) {
         throw new HttpException('ไม่สามารถอัพเดทโปรไฟล์ได้', 500);

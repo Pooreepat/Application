@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { EUserRole } from './user.constant';
 
@@ -44,7 +44,7 @@ export class User {
   @Prop({ type: Date })
   lastLogin: Date;
 
-  _id?: string;
+  _id?: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

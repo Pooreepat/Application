@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Profile, ProfileDocument } from './profile.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
+import { IProfile, IProfileCreate } from './profile.interface';
 
 @Injectable()
 export class ProfileService {
@@ -22,21 +23,21 @@ export class ProfileService {
     return [profiles, total];
   }
 
-  public async getProfileById(profileId: string): Promise<ProfileDocument> {
-    return this.profileModel.findById(profileId).lean();
+  public async getProfileById(id: string | Types.ObjectId): Promise<ProfileDocument> {
+    return this.profileModel.findById(id).lean();
   }
 
   public async getProfileByUserId(userId: string): Promise<ProfileDocument> {
-    return this.profileModel.findOne({ user: userId }).lean();
+    return this.profileModel.findOne({ _userId: userId }).lean();
   }
 
-  public async createProfile(data: ProfileDocument): Promise<ProfileDocument> {
+  public async createProfile(data: IProfileCreate): Promise<ProfileDocument> {
     return this.profileModel.create(data);
   }
 
   public async updateProfile(
-    profileId: string,
-    data: any,
+    profileId: string | Types.ObjectId,
+    data: Partial<IProfile>,
   ): Promise<ProfileDocument> {
     return this.profileModel.findByIdAndUpdate(profileId, data, { new: true });
   }
