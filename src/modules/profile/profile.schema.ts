@@ -1,12 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { AccommodationType } from '../profile.constant';
+import { AccommodationType } from './profile.constant';
+import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type ProfileDocument = Profile & Document;
 
 @Schema({ timestamps: true })
 export class Profile {
-  @Prop({ required: true, unique: true })
+  @Prop({
+    required: true,
+    unique: true,
+    default: () => RandomNumber.generateRandomNumber(6).toString(),
+  })
   _numberId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -44,9 +49,6 @@ export class Profile {
 
   @Prop()
   lifestyle: string;
-
-  @Prop([String])
-  location: string[];
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

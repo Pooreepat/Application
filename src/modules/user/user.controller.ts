@@ -22,9 +22,4 @@ export class UserController {
   public async profile(@User() user: IUser): Promise<IUser> {
     return user;
   }
-
-  //   @Put('update')
-  //   public async update(@Body() data: UpdateUserDto): Promise<UserDocument> {
-  //     return this.userService.updateUserByAction(data.userId, data, EUserAction.UPDATE, 'User updated');
-  //   }
 }
