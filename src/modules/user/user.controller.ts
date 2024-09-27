@@ -16,7 +16,7 @@ export class UserController {
     return this.registerUsecase.execute(data);
   }
 
-  @Get('profile')
+  @Get('self')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   public async profile(@User() user: IUser): Promise<IUser> {
