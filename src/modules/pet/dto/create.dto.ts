@@ -1,157 +1,155 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsBoolean,
+  IsDateString,
   IsEnum,
-  IsNumber,
+  IsNotEmpty,
   IsOptional,
   IsString,
   Length,
+  ValidateNested,
 } from 'class-validator';
-import { Gender } from '../pet.constant';
+import { Types } from 'mongoose';
+import { Gender, Status, Theme } from '../pet.constant';
+import { LocationDto } from 'src/dto/location.dto';
+import { Type } from 'class-transformer';
 
-export default class CreatePetDto {
+export class CreatePetDto {
   @ApiProperty({
-    required: false,
-    type: String,
-    description: 'ชื่อเล่น',
+    description: 'Nickname of the Pet',
+    example: 'Fluffy',
   })
-  @IsOptional()
-  @IsString({
-    message: 'ชื่อเล่นต้องเป็นตัวอักษร',
-  })
-  nickname?: string;
+  @IsNotEmpty()
+  @IsString()
+  nickname: string;
 
   @ApiProperty({
-    required: false,
-    type: String,
-    description: 'เพศ',
+    description: 'Gender of the Pet',
+    enum: Gender,
+    example: Gender.MALE,
   })
-  @IsOptional()
-  @IsEnum(Gender, {
-    message: `เพศต้องเป็น ${Object.values(Gender).join(' หรือ ')}`,
-  })
+  @IsNotEmpty()
+  @IsEnum(Gender)
   gender: Gender;
 
-  
-  
+  @ApiProperty({
+    description: 'Breed of the Pet',
+    example: 'Golden Retriever',
+  })
+  @IsOptional()
+  @IsString()
+  breed?: string;
 
+  @ApiProperty({
+    description: 'Location of the Pet',
+    type: LocationDto,
+    example: {
+      type: 'Point',
+      coordinates: [100.523186, 13.736717],
+    },
+  })
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => LocationDto)
+  location: LocationDto;
 
+  @ApiProperty({
+    description: 'Species of the Pet',
+    example: 'Dog',
+  })
+  @IsNotEmpty()
+  @IsString()
+  species: string;
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'เบอร์โทรศัพท์',
-  // })
-  // @IsOptional()
-  // @Length(10, 10, {
-  //   message: 'เบอร์โทรศัพท์ต้องมี 10 ตัว',
-  // })
-  // phone?: string;
+  @ApiProperty({
+    description: 'Tags related to the Pet',
+    type: [String],
+    example: ['friendly', 'playful'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  tags: string[];
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'รูปภาพ',
-  // })
-  // @IsOptional()
-  // images?: string[];
+  @ApiProperty({
+    description: 'Images of the Pet',
+    type: [String],
+    example: ['image1.jpg', 'image2.jpg'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'ชื่อ',
-  // })
-  // @IsOptional()
-  // firstname?: string;
+  @ApiProperty({
+    description: 'General Health Conditions',
+    type: [String],
+    example: ['Healthy', 'Neutered'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  generalHealth: string[];
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'นามสกุล',
-  // })
-  // @IsOptional()
-  // lastname?: string;
+  @ApiProperty({
+    description: 'Birthday of the Pet',
+    example: '2020-06-01T00:00:00.000Z',
+  })
+  @IsNotEmpty()
+  @IsDateString()
+  birthdayAt: Date;
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: Date,
-  //   description: 'วันเกิด',
-  // })
-  // @IsOptional()
-  // birthdayAt?: Date;
+  @ApiProperty({
+    description: 'Characteristics of the Pet',
+    type: [String],
+    example: ['Energetic', 'Loyal'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  characteristics: string[];
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'ประเภทที่พัก',
-  // })
-  // @IsOptional()
-  // @IsEnum(AccommodationType, {
-  //   message: `ประเภทที่พักต้องเป็น ${Object.values(AccommodationType).join(' หรือ ')}`,
-  // })
-  // accommodationType?: AccommodationType;
+  @ApiProperty({
+    description: 'Vaccination History of the Pet',
+    type: [String],
+    example: ['Rabies', 'Distemper'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  vaccinationHistory: string[];
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: Number,
-  //   description: 'ระดับ',
-  // })
-  // @IsOptional()
-  // @IsNumber(
-  //   {},
-  //   {
-  //     message: 'ระดับต้องเป็นตัวเลข',
-  //   },
-  // )
-  // level?: number;
+  @ApiProperty({
+    description: 'Theme for the Pet Profile',
+    enum: Theme,
+    example: Theme.BLUE,
+  })
+  @IsOptional()
+  @IsEnum(Theme)
+  theme?: Theme;
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: Number,
-  //   description: 'ระยะทาง',
-  // })
-  // @IsOptional()
-  // @IsNumber(
-  //   {},
-  //   {
-  //     message: 'ระยะทางต้องเป็นตัวเลข',
-  //   },
-  // )
-  // distance?: number;
+  @ApiProperty({
+    description: 'Additional Notes for the Pet',
+    example: 'Loves to play with toys.',
+  })
+  @IsOptional()
+  @IsString()
+  notes?: string;
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: Number,
-  //   description: 'เวลาว่าง',
-  // })
-  // @IsOptional()
-  // @IsNumber(
-  //   {},
-  //   {
-  //     message: 'เวลาว่างต้องเป็นตัวเลข',
-  //   },
-  // )
-  // freeTime?: number;
+  @ApiProperty({
+    description: 'Size of the Pet',
+    example: 'Medium',
+  })
+  @IsNotEmpty()
+  @IsString()
+  size: string;
 
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'บุคลิกภาพ',
-  // })
-  // @IsOptional()
-  // @IsArray({
-  //   message: 'บุคลิกภาพต้องเป็น array',
-  // })
-  // personality?: string[];
-
-  // @ApiProperty({
-  //   required: false,
-  //   type: String,
-  //   description: 'รูปแบบการดำเนินชีวิต',
-  // })
-  // @IsOptional()
-  // @IsString({
-  //   message: 'รูปแบบการดำเนินชีวิตต้องเป็นตัวอักษร',
-  // })
-  // lifestyle?: string;
+  @ApiProperty({
+    description: 'Energy level of the Pet',
+    example: 'High',
+  })
+  @IsNotEmpty()
+  @IsString()
+  energy: string;
 }

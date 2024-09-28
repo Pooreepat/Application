@@ -5,6 +5,7 @@ import { UserModule } from './modules/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { PetModule } from './modules/pet/pet.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { ProfileModule } from './modules/profile/profile.module';
     }),
     UserModule,
     AuthModule,
-    ProfileModule
+    ProfileModule,
+    PetModule
   ],
 })
 export class AppModule {}

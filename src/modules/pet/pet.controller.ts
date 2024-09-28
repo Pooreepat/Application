@@ -20,6 +20,7 @@ import UpdatePetDto from './dto/update.dto';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
 import { CreatePetUsecase } from './usecase/create.usecase';
+import { CreatePetDto } from './dto/create.dto';
 
 @ApiTags('pet')
 @ApiBearerAuth()
@@ -36,9 +37,9 @@ export class PetController {
   @Post()
   public async createPet(
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Body() data: UpdatePetDto,
+    @Body() data: CreatePetDto,
   ): Promise<any> {
-    return this.updatePetUsecase.execute({
+    return this.createPetUsecase.execute({
       ...data,
       id: user.profile._id,
     });

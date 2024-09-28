@@ -2,7 +2,9 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpRespons } from 'src/interface/respones';
 import { PetService } from '../pet.service';
-import CreatePetDto from '../dto/create.dto';
+import { Status } from '../pet.constant';
+import { CreatePetDto } from '../dto/create.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CreatePetUsecase {
@@ -11,9 +13,16 @@ export class CreatePetUsecase {
     readonly configService: ConfigService,
   ) {}
 
-  public async execute(data: CreatePetDto): Promise<HttpRespons> {
+  public async execute(
+    data: CreatePetDto & { id: Types.ObjectId },
+  ): Promise<HttpRespons> {
     try {
-      const pet = await this.petService.createPet(data);
+      const pet = await this.petService.createPet({
+        ...data,
+        isHiddened: false,
+        status: Status.STRAY,
+        _profileId: data.id,
+      });
 
       if (!pet) {
         throw new HttpException('ไม่สามารถสร้างผู้ใช้งานได้', 500);

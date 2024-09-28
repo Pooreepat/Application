@@ -4,7 +4,7 @@ import { Pet, PetDocument } from './pet.schema';
 import { Model, Types } from 'mongoose';
 import { IProfileCreate } from '../profile/profile.interface';
 import { IPet } from './pet.interface';
-import CreatePetDto from './dto/create.dto';
+import { CreatePetDto } from './dto/create.dto';
 
 @Injectable()
 export class PetService {
@@ -27,7 +27,7 @@ export class PetService {
     return this.petModel.findOne({ _profileId: profileId }).lean();
   }
 
-  public async createPet(data: CreatePetDto): Promise<PetDocument> {
+  public async createPet(data: Partial<Pet>): Promise<PetDocument> {
     return this.petModel.create(data);
   }
 

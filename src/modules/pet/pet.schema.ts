@@ -25,8 +25,21 @@ export class Pet {
   @Prop({ type: String })
   breed: string;
 
-  @Prop({ type: [String], required: true })
-  location: string[];
+  @Prop({
+    type: {
+      type: String,
+      default: 'Point',
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  })
+  location: {
+    type: string;
+    coordinates: number[];
+  };
 
   @Prop({ type: String, required: true })
   species: string;

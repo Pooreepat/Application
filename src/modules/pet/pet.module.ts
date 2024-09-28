@@ -7,6 +7,7 @@ import { GetPetPaginationUsecase } from './usecase/getPagination.usecase';
 import { UpdatePetUsecase } from './usecase/update.usecase';
 import { GetByIdPetUsecase } from './usecase/getById.usecase';
 import { CreatePetUsecase } from './usecase/create.usecase';
+import { ProfileModule } from '../profile/profile.module';
 
 const usecases = [
   GetPetPaginationUsecase,
@@ -16,7 +17,10 @@ const usecases = [
 ];
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Pet.name, schema: PetSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: Pet.name, schema: PetSchema }]),
+    ProfileModule,
+  ],
   controllers: [PetController],
   providers: [PetService, ...usecases],
   exports: [PetService],

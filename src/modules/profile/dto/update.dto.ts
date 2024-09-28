@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsDateString,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -46,12 +47,12 @@ export default class UpdateProfileDto {
   lastname?: string;
 
   @ApiProperty({
-    required: false,
-    type: Date,
-    description: 'วันเกิด',
+    description: 'Birthday of the Pet',
+    example: '2020-06-01T00:00:00.000Z',
   })
   @IsOptional()
-  birthdayAt?: Date;
+  @IsDateString()
+  birthdayAt: Date;
 
   @ApiProperty({
     required: false,
