@@ -1,8 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpRespons, HttpResponsePagination } from 'src/interface/respones';
-import GetProfilePaginationDto from '../dto/getPagination.dto';
-import UpdateProfileDto from '../dto/update.dto';
+import GetProfilePaginationDto from '../dto/pet-getPagination.dto';
+import UpdateProfileDto from '../dto/pet-update.dto';
 import { Types } from 'mongoose';
 import { PetService } from '../pet.service';
 

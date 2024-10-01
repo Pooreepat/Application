@@ -7,15 +7,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Length,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
-import { Gender, Status, Theme } from '../pet.constant';
+import { Gender, Species, Theme } from '../pet.constant';
 import { LocationDto } from 'src/dto/location.dto';
 import { Type } from 'class-transformer';
 
-export class CreatePetDto {
+export default class PetUpdateDto {
   @ApiProperty({
     description: 'Nickname of the Pet',
     example: 'Fluffy',
@@ -56,11 +54,11 @@ export class CreatePetDto {
 
   @ApiProperty({
     description: 'Species of the Pet',
-    example: 'Dog',
+    example: 'dog',
   })
   @IsNotEmpty()
   @IsString()
-  species: string;
+  species: Species;
 
   @ApiProperty({
     description: 'Tags related to the Pet',
@@ -128,6 +126,14 @@ export class CreatePetDto {
   @IsOptional()
   @IsEnum(Theme)
   theme?: Theme;
+
+  @ApiProperty({
+    description: 'Indicates if the Pet is alive',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isAlive?: boolean;
 
   @ApiProperty({
     description: 'Additional Notes for the Pet',

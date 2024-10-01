@@ -8,18 +8,22 @@ import { UpdatePetUsecase } from './usecase/update.usecase';
 import { GetByIdPetUsecase } from './usecase/getById.usecase';
 import { CreatePetUsecase } from './usecase/create.usecase';
 import { ProfileModule } from '../profile/profile.module';
+import { SwipeModule } from '../swipes/swipes.module';
+import { SearchPetUsecase } from './usecase/search.usecase';
 
 const usecases = [
   GetPetPaginationUsecase,
   UpdatePetUsecase,
   GetByIdPetUsecase,
   CreatePetUsecase,
+  SearchPetUsecase
 ];
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Pet.name, schema: PetSchema }]),
     ProfileModule,
+    SwipeModule
   ],
   controllers: [PetController],
   providers: [PetService, ...usecases],

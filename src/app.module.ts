@@ -27,7 +27,7 @@ import { PetModule } from './modules/pet/pet.module';
     UserModule,
     AuthModule,
     ProfileModule,
-    PetModule
+    PetModule,
   ],
 })
 export class AppModule {}

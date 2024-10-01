@@ -14,15 +14,17 @@ import { GetPetPaginationUsecase } from './usecase/getPagination.usecase';
 import { UpdatePetUsecase } from './usecase/update.usecase';
 import { GetByIdPetUsecase } from './usecase/getById.usecase';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
-import GetPetPaginationDto from './dto/getPagination.dto';
+import GetPetPaginationDto from './dto/pet-getPagination.dto';
 import { User } from '../user/user.decorator';
-import UpdatePetDto from './dto/update.dto';
+import UpdatePetDto from './dto/pet-update.dto';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
 import { CreatePetUsecase } from './usecase/create.usecase';
-import { CreatePetDto } from './dto/create.dto';
+import { PetCreateDto } from './dto/pet-create.dto';
+import { SearchPetUsecase } from './usecase/search.usecase';
+import PetSearchDto from './dto/pet-search.dto';
 
-@ApiTags('pet')
+@ApiTags('Pet')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('pet')
@@ -32,12 +34,21 @@ export class PetController {
     private readonly updatePetUsecase: UpdatePetUsecase,
     private readonly getByIdPetUsecase: GetByIdPetUsecase,
     private readonly createPetUsecase: CreatePetUsecase,
+    private readonly searchPetUsecase: SearchPetUsecase,
   ) {}
+
+  @Get('search')
+  public async searchPet(
+    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+    @Query() query: PetSearchDto,
+  ): Promise<any> {
+    return this.searchPetUsecase.execute({ ...query, profile: user.profile });
+  }
 
   @Post()
   public async createPet(
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Body() data: CreatePetDto,
+    @Body() data: PetCreateDto,
   ): Promise<any> {
     return this.createPetUsecase.execute({
       ...data,

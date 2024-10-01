@@ -1,19 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PreferenceService } from './preference.service';
 import { PreferenceController } from './preference.controller';
 import { Preference, PreferenceSchema } from './preference.schema';
-import { PreferenceService } from './preference.service';
-
-const usecases = [];
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Preference.name, schema: PreferenceSchema },
-    ]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: Preference.name, schema: PreferenceSchema }])],
   controllers: [PreferenceController],
-  providers: [PreferenceService, ...usecases],
-  exports: [PreferenceService],
+  providers: [PreferenceService],
 })
-export class ProfileModule {}
+export class PreferenceModule {}

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Gender, Status, Theme } from './pet.constant';
+import { Gender, Species, Status, Theme } from './pet.constant';
 import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type PetDocument = Pet & Document;
@@ -41,8 +41,8 @@ export class Pet {
     coordinates: number[];
   };
 
-  @Prop({ type: String, required: true })
-  species: string;
+  @Prop({ type: String, enum: Species, required: true })
+  species: Species;
 
   @Prop({ type: [String], required: true })
   tags: string[];
@@ -86,4 +86,7 @@ export class Pet {
   _id?: Types.ObjectId;
 }
 
+
 export const PetSchema = SchemaFactory.createForClass(Pet);
+
+PetSchema.index({ location: '2dsphere' });

@@ -1,39 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Preference, PreferenceDocument } from './preference.schema';
+import { PreferenceCreateDto } from './dto/preference-create.dto';
+import { PreferenceUpdateDto } from './dto/preference-update.dto';
 
 @Injectable()
 export class PreferenceService {
   constructor(
-    @InjectModel(Preference.name)
-    private preferenceModel: Model<PreferenceDocument>,
+    @InjectModel(Preference.name) private preferenceModel: Model<PreferenceDocument>,
   ) {}
 
-  public async getPreferenceById(
-    profileId: string,
-  ): Promise<PreferenceDocument> {
-    return this.preferenceModel.findById(profileId).lean();
+  async create(createPreferenceDto: PreferenceCreateDto): Promise<Preference> {
+    const createdPreference = new this.preferenceModel(createPreferenceDto);
+    return createdPreference.save();
   }
 
-  public async getPreferenceByProfileId(
-    userId: string,
-  ): Promise<PreferenceDocument> {
-    return this.preferenceModel.findOne({ user: userId }).lean();
+  async findAll(): Promise<Preference[]> {
+    return this.preferenceModel.find().exec();
   }
 
-  public async createPreference(
-    data: PreferenceDocument,
-  ): Promise<PreferenceDocument> {
-    return this.preferenceModel.create(data);
+  async findOne(id: string): Promise<Preference> {
+    const preference = await this.preferenceModel.findById(id).exec();
+    if (!preference) {
+      throw new NotFoundException(`การตั้งค่า ID ${id} ไม่พบ`);
+    }
+    return preference;
   }
 
-  public async updatePreference(
-    profileId: string,
-    data: any,
-  ): Promise<PreferenceDocument> {
-    return this.preferenceModel.findByIdAndUpdate(profileId, data, {
-      new: true,
-    });
+  async update(id: string, updatePreferenceDto: PreferenceUpdateDto): Promise<Preference> {
+    const preference = await this.preferenceModel.findByIdAndUpdate(id, updatePreferenceDto, { new: true }).exec();
+    if (!preference) {
+      throw new NotFoundException(`การตั้งค่า ID ${id} ไม่พบ`);
+    }
+    return preference;
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.preferenceModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`การตั้งค่า ID ${id} ไม่พบ`);
+    }
   }
 }

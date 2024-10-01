@@ -1,21 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
-  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
-  Length,
   ValidateNested,
 } from 'class-validator';
-import { Gender, Theme } from '../pet.constant';
+import { Types } from 'mongoose';
+import { Gender, Species, Status, Theme } from '../pet.constant';
 import { LocationDto } from 'src/dto/location.dto';
 import { Type } from 'class-transformer';
 
-export default class UpdatePetDto {
+export class PetCreateDto {
   @ApiProperty({
     description: 'Nickname of the Pet',
     example: 'Fluffy',
@@ -56,11 +54,11 @@ export default class UpdatePetDto {
 
   @ApiProperty({
     description: 'Species of the Pet',
-    example: 'Dog',
+    example: 'dog',
   })
   @IsNotEmpty()
   @IsString()
-  species: string;
+  species: Species;
 
   @ApiProperty({
     description: 'Tags related to the Pet',
@@ -128,14 +126,6 @@ export default class UpdatePetDto {
   @IsOptional()
   @IsEnum(Theme)
   theme?: Theme;
-
-  @ApiProperty({
-    description: 'Indicates if the Pet is alive',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  isAlive?: boolean;
 
   @ApiProperty({
     description: 'Additional Notes for the Pet',

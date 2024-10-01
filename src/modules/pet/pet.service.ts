@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pet, PetDocument } from './pet.schema';
 import { Model, Types } from 'mongoose';
-import { IProfileCreate } from '../profile/profile.interface';
 import { IPet } from './pet.interface';
-import { CreatePetDto } from './dto/create.dto';
+import { PetCreateDto } from './dto/pet-create.dto';
+import PetUpdateDto from './dto/pet-update.dto';
 
 @Injectable()
 export class PetService {
@@ -40,5 +40,100 @@ export class PetService {
 
   public async deletePet(id: string | Types.ObjectId): Promise<PetDocument> {
     return this.petModel.findByIdAndDelete(id);
+  }
+
+  async create(createPetDto: PetCreateDto): Promise<Pet> {
+    const createdPet = new this.petModel(createPetDto);
+    return createdPet.save();
+  }
+
+  async findAll(): Promise<Pet[]> {
+    return this.petModel.find().exec();
+  }
+
+  async findOne(id: string): Promise<Pet> {
+    const pet = await this.petModel.findById(id).exec();
+    if (!pet) {
+      throw new NotFoundException(`สัตว์เลี้ยง ID ${id} ไม่พบ`);
+    }
+    return pet;
+  }
+
+  async update(id: string, updatePetDto: PetUpdateDto): Promise<Pet> {
+    const pet = await this.petModel
+      .findByIdAndUpdate(id, updatePetDto, { new: true })
+      .exec();
+    if (!pet) {
+      throw new NotFoundException(`สัตว์เลี้ยง ID ${id} ไม่พบ`);
+    }
+    return pet;
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.petModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`สัตว์เลี้ยง ID ${id} ไม่พบ`);
+    }
+  }
+
+  async getPetByFilter(filter: any): Promise<Pet[]> {
+    return this.petModel.find(filter).exec();
+  }
+
+  async searchPets({
+    location,
+    maxDistance,
+    preferences,
+    excludePetIds,
+  }: {
+    location: { latitude: number; longitude: number };
+    maxDistance: number;
+    preferences: {
+      species: string;
+      ageRange: { min: number; max: number };
+      gender: string;
+    };
+    excludePetIds: Types.ObjectId[];
+  }) {
+    const currentDate = new Date();
+    const minDate = new Date(
+      currentDate.getFullYear() - preferences.ageRange.max,
+      currentDate.getMonth(),
+      currentDate.getDate(),
+    );
+    const maxDate = new Date(
+      currentDate.getFullYear() - preferences.ageRange.min,
+      currentDate.getMonth(),
+      currentDate.getDate(),
+    );
+    const query: any = {
+      _id: { $nin: excludePetIds },
+    };
+
+    if (preferences.species !== 'both') {
+      query.species = preferences.species;
+    }
+
+    if (preferences.ageRange.min && preferences.ageRange.max) {
+      query.birthdayAt = { $gte: minDate, $lte: maxDate };
+    }
+
+    if (location.latitude && location.longitude) {
+      query.location = {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [location.longitude, location.latitude],
+          },
+          $maxDistance: maxDistance * 1000,
+        },
+      };
+    }
+
+    if (preferences.gender !== 'both') {
+      query.gender = preferences.gender;
+    }
+    console.log(query);
+    return this.petModel.find(query).exec();
   }
 }

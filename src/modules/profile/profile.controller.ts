@@ -19,7 +19,7 @@ import { IUser } from '../user/user.interface';
 import { ProfileTransformUserPipe } from './pipe/merchant-transform-user.pipe';
 import { GetByIdProfileUsecase } from './usecase/getById.usecase';
 
-@ApiTags('profile')
+@ApiTags('Profile')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
@@ -27,7 +27,7 @@ export class ProfileController {
   constructor(
     private readonly getProfilePaginationUsecase: GetProfilePaginationUsecase,
     private readonly updateProfileUsecase: UpdateProfileUsecase,
-    private readonly getByIdProfileUsecase: GetByIdProfileUsecase,
+    // private readonly getByIdProfileUsecase: GetByIdProfileUsecase,
   ) {}
 
   @Get()
@@ -44,10 +44,10 @@ export class ProfileController {
     return user.profile;
   }
 
-  @Get(':id')
-  public async getProfileById(@Param('id') id: string): Promise<any> {
-    return this.getByIdProfileUsecase.execute(id);
-  }
+  // @Get(':id')
+  // public async getProfileById(@Param('id') id: string): Promise<any> {
+  //   return this.getByIdProfileUsecase.execute(id);
+  // }
 
   @Put('self')
   public async updateSelfProfile(
@@ -60,15 +60,15 @@ export class ProfileController {
     });
   }
 
-  @Put(':id')
-  public async updateProfile(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Param('id') id: string,
-    @Body() data: UpdateProfileDto,
-  ): Promise<any> {
-    return this.updateProfileUsecase.execute({
-      ...data,
-      id,
-    });
-  }
+  // @Put(':id')
+  // public async updateProfile(
+  //   @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+  //   @Param('id') id: string,
+  //   @Body() data: UpdateProfileDto,
+  // ): Promise<any> {
+  //   return this.updateProfileUsecase.execute({
+  //     ...data,
+  //     id,
+  //   });
+  // }
 }

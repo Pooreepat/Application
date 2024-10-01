@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpRespons } from 'src/interface/respones';
 import { PetService } from '../pet.service';
 import { Status } from '../pet.constant';
-import { CreatePetDto } from '../dto/create.dto';
+import { PetCreateDto } from '../dto/pet-create.dto';
 import { Types } from 'mongoose';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class CreatePetUsecase {
   ) {}
 
   public async execute(
-    data: CreatePetDto & { id: Types.ObjectId },
+    data: PetCreateDto & { id: Types.ObjectId },
   ): Promise<HttpRespons> {
     try {
       const pet = await this.petService.createPet({

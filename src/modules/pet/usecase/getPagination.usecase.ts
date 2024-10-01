@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpResponsePagination } from 'src/interface/respones';
-import GetProfilePaginationDto from '../dto/getPagination.dto';
+import GetProfilePaginationDto from '../dto/pet-getPagination.dto';
 import { PetService } from '../pet.service';
 
 @Injectable()
