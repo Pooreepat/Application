@@ -22,7 +22,6 @@ import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-use
 import { User } from '../user/user.decorator';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
-import { AcceptSwipesUsecase } from './usecase/accept.usecase';
 
 @ApiTags('Swipes')
 @ApiBearerAuth()
@@ -32,7 +31,6 @@ export class SwipeController {
   constructor(
     private readonly swipeService: SwipeService,
     private readonly createSwipesUsecase: CreateSwipesUsecase,
-    private readonly acceptSwipesUsecase: AcceptSwipesUsecase,
   ) {}
 
   @Post()
@@ -45,19 +43,6 @@ export class SwipeController {
     return this.createSwipesUsecase.execute({
       ...createSwipeDto,
       _swiperId: user.profile._id,
-    });
-  }
-
-  @Get('accept/:id')
-  @ApiOperation({ summary: 'ยอมรับการสไลด์' })
-  @ApiResponse({ status: 200, description: 'การสไลด์ถูกยอมรับแล้ว' })
-  accept(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Param('id') id: string,
-  ) {
-    return this.acceptSwipesUsecase.execute({
-      _swipedPetId: id,
-      profile: user.profile,
     });
   }
 

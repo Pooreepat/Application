@@ -10,7 +10,22 @@ export class MessageService {
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
   ) {}
 
-  async create(createMessageDto: MessageCreateDto): Promise<Message> {
+  public async getPagination(
+    filterQuery: any,
+    skip: number,
+    perPage: number,
+  ): Promise<[MessageDocument[], number]> {
+    const message = await this.messageModel
+      .find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+    const total = await this.messageModel.countDocuments(filterQuery);
+    return [message, total];
+  }
+
+  async create(createMessageDto: Partial<MessageDocument>): Promise<Message> {
     const message = new this.messageModel(createMessageDto);
     return message.save();
   }
@@ -27,8 +42,13 @@ export class MessageService {
     return message;
   }
 
-  async update(id: string, updateMessageDto: MessageCreateDto): Promise<Message> {
-    const updatedMessage = await this.messageModel.findByIdAndUpdate(id, updateMessageDto, { new: true }).exec();
+  async update(
+    id: string,
+    updateMessageDto: MessageCreateDto,
+  ): Promise<Message> {
+    const updatedMessage = await this.messageModel
+      .findByIdAndUpdate(id, updateMessageDto, { new: true })
+      .exec();
     if (!updatedMessage) {
       throw new NotFoundException('ไม่สามารถอัปเดตได้ ไม่พบข้อความ');
     }

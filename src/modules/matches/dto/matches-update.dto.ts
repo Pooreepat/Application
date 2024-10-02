@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsMongoId } from 'class-validator';
 import { SwipeType } from 'src/modules/swipes/swipes.constant';
 
-export class SwipeUpdateDto {
+export class MatchUpdateDto {
   @ApiProperty({
     example: '60b8d295f06020000808b0e0',
     description: 'รหัสผู้สไลด์',

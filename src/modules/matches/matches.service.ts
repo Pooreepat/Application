@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Match, MatchDocument } from './matches.schema';
-import { MatchCreateDto } from './dto/matches-create.dto';
 
 @Injectable()
 export class MatchService {
@@ -10,7 +9,22 @@ export class MatchService {
     @InjectModel(Match.name) private matchModel: Model<MatchDocument>,
   ) {}
 
-  async create(createMatchDto: MatchCreateDto): Promise<Match> {
+  public async getPagination(
+    filterQuery: any,
+    skip: number,
+    perPage: number,
+  ): Promise<[MatchDocument[], number]> {
+    const matches = await this.matchModel
+      .find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+    const total = await this.matchModel.countDocuments(filterQuery);
+    return [matches, total];
+  }
+
+  async create(createMatchDto: Partial<MatchDocument>): Promise<Match> {
     const match = new this.matchModel(createMatchDto);
     return match.save();
   }
@@ -27,7 +41,10 @@ export class MatchService {
     return match;
   }
 
-  async update(id: string, updateMatchDto: MatchCreateDto): Promise<Match> {
+  async update(
+    id: string,
+    updateMatchDto: Partial<MatchDocument>,
+  ): Promise<Match> {
     const updatedMatch = await this.matchModel
       .findByIdAndUpdate(id, updateMatchDto, { new: true })
       .exec();

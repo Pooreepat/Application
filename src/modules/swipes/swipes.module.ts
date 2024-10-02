@@ -5,14 +5,15 @@ import { SwipeController } from './swipes.controller';
 import { Swipe, SwipeSchema } from './swipes.schema';
 import { CreateSwipesUsecase } from './usecase/create.usecase';
 import { ProfileModule } from '../profile/profile.module';
-import { AcceptSwipesUsecase } from './usecase/accept.usecase';
+import { MatchModule } from '../matches/matches.module';
 
-const usecases= [CreateSwipesUsecase,AcceptSwipesUsecase]
+const usecases= [CreateSwipesUsecase]
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Swipe.name, schema: SwipeSchema }]),
     ProfileModule,
+    MatchModule,
   ],
   controllers: [SwipeController],
   providers: [SwipeService, ...usecases],

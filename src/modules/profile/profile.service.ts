@@ -11,15 +11,16 @@ export class ProfileService {
   ) {}
 
   public async getPagination(
+    filterQuery: any,
     skip: number,
     perPage: number,
   ): Promise<[ProfileDocument[], number]> {
     const profiles = await this.profileModel
-      .find()
+      .find(filterQuery)
       .skip(skip)
       .limit(perPage)
       .lean();
-    const total = await this.profileModel.countDocuments();
+    const total = await this.profileModel.countDocuments(filterQuery);
     return [profiles, total];
   }
 

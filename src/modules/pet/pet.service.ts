@@ -11,11 +11,17 @@ export class PetService {
   constructor(@InjectModel(Pet.name) private petModel: Model<PetDocument>) {}
 
   public async getPagination(
+    filterQuery: any,
     skip: number,
     perPage: number,
   ): Promise<[PetDocument[], number]> {
-    const pets = await this.petModel.find().skip(skip).limit(perPage).lean();
-    const total = await this.petModel.countDocuments();
+    const pets = await this.petModel
+      .find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+    const total = await this.petModel.countDocuments(filterQuery);
     return [pets, total];
   }
 
@@ -133,7 +139,7 @@ export class PetService {
     if (preferences.gender !== 'both') {
       query.gender = preferences.gender;
     }
-    console.log(query);
+
     return this.petModel.find(query).exec();
   }
 }

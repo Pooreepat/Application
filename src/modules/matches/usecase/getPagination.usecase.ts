@@ -1,39 +1,46 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpResponsePagination } from 'src/interface/respones';
-import GetProfilePaginationDto from '../dto/pet-getPagination.dto';
-import { PetService } from '../pet.service';
 import { IProfile } from 'src/modules/profile/profile.interface';
+import { MatchService } from '../matches.service';
+import GetMatchesPaginationDto from '../dto/matches-getPagination.dto';
+import { MatchStatus } from '../matches.constant';
 
 @Injectable()
-export class GetPetPaginationUsecase {
+export class GetMatchesPaginationUsecase {
   constructor(
-    private readonly petService: PetService,
+    private readonly matchesService: MatchService,
     readonly configService: ConfigService,
   ) {}
 
   public async execute(
-    data: GetProfilePaginationDto,
+    data: GetMatchesPaginationDto,
     profile: IProfile,
   ): Promise<HttpResponsePagination> {
     try {
-      const id = profile._id;
+      const status = data.status;
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
+      const query: any = {
+        $or: [{ _profile1Id: profile._id }, { _profile2Id: profile._id }],
+      };
+
+      if (status !== 'both') {
+        query.status = status;
+      }
+
       const skip = (page - 1) * perPage;
-      const [pets, total] = await this.petService.getPagination(
-        {
-          _profileId: id,
-        },
+      const [matches, total] = await this.matchesService.getPagination(
+        query,
         skip,
         perPage,
       );
-      if (!pets) {
+      if (!matches) {
         throw new HttpException('ไม่พบข้อมูล', 404);
       }
       return {
-        data: pets,
+        data: matches,
         total,
         page,
         perPage,

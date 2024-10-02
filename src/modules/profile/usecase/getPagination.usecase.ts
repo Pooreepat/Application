@@ -20,6 +20,7 @@ export class GetProfilePaginationUsecase {
 
       const skip = (page - 1) * perPage;
       const [profiles, total] = await this.profileService.getPagination(
+        {},
         skip,
         perPage,
       );

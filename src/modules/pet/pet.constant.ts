@@ -7,6 +7,7 @@ export enum Gender {
 export enum Species {
   DOG = 'dog',
   CAT = 'cat',
+  BOTH = 'both',
 }
 
 export enum Theme {

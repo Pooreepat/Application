@@ -58,9 +58,10 @@ export class PetController {
 
   @Get()
   public async getPagination(
+    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
     @Query() query: GetPetPaginationDto,
   ): Promise<any> {
-    return this.getPetPaginationUsecase.execute(query);
+    return this.getPetPaginationUsecase.execute(query, user.profile);
   }
 
   //   @Get('self')

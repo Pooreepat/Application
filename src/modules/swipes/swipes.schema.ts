@@ -12,6 +12,9 @@ export class Swipe {
   @Prop({ type: Types.ObjectId, ref: 'Pet', required: true })
   _swipedPetId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
+  _swipedId: Types.ObjectId;
+
   @Prop({ type: String, enum: SwipeType })
   swipeType: SwipeType;
 }

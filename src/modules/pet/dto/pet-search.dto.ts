@@ -48,12 +48,12 @@ export default class PetSearchDto {
 
   @ApiProperty({
     required: false,
-    type: String,
-    description: 'สนใจสายพันธุ์ใด',
+    enum: ['dog', 'cat', 'both'],
+    description: 'สนใจเพศใด',
   })
   @IsOptional()
-  @IsString({
-    message: 'สายพันธุ์ต้องเป็นสตริง',
+  @IsEnum(['dog', 'cat', 'both'], {
+    message: 'ค่าเพศที่สนใจต้องเป็น "dog", "cat" หรือ "both"',
   })
   specie: string;
 

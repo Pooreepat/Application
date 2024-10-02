@@ -1,39 +1,39 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpResponsePagination } from 'src/interface/respones';
-import GetProfilePaginationDto from '../dto/pet-getPagination.dto';
-import { PetService } from '../pet.service';
+import GetMessagePaginationDto from '../dto/message-getPagination.dto';
+import { MessageService } from '../messages.service';
 import { IProfile } from 'src/modules/profile/profile.interface';
 
 @Injectable()
-export class GetPetPaginationUsecase {
+export class GetMessagePaginationUsecase {
   constructor(
-    private readonly petService: PetService,
+    private readonly messageService: MessageService,
     readonly configService: ConfigService,
   ) {}
 
   public async execute(
-    data: GetProfilePaginationDto,
+    data: GetMessagePaginationDto,
     profile: IProfile,
   ): Promise<HttpResponsePagination> {
     try {
-      const id = profile._id;
+      const id = data.id;
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
       const skip = (page - 1) * perPage;
-      const [pets, total] = await this.petService.getPagination(
+      const [messages, total] = await this.messageService.getPagination(
         {
-          _profileId: id,
+          _matcheId: id,
         },
         skip,
         perPage,
       );
-      if (!pets) {
+      if (!messages) {
         throw new HttpException('ไม่พบข้อมูล', 404);
       }
       return {
-        data: pets,
+        data: messages,
         total,
         page,
         perPage,

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { Swipe, SwipeDocument } from './swipes.schema';
 import { SwipeCreateDto } from './dto/swipes-create.dto';
 
@@ -13,6 +13,10 @@ export class SwipeService {
   async create(createSwipeDto: SwipeCreateDto): Promise<Swipe> {
     const createdSwipe = new this.swipeModel(createSwipeDto);
     return createdSwipe.save();
+  }
+
+  async findByFilter(filter: Partial<SwipeDocument>): Promise<Swipe> {
+    return this.swipeModel.findOne(filter as FilterQuery<SwipeDocument>).exec();
   }
 
   async findAll(): Promise<Swipe[]> {
