@@ -51,13 +51,19 @@ export class UserService {
     }
   }
 
-  public async createUser(data: UserRegisterDto): Promise<UserDocument> {
+  public async registerUser(data: UserRegisterDto): Promise<UserDocument> {
     const user = {
       ...data,
       role: [EUserRole.USER],
     };
     return this.userModel.create(user);
   }
+
+  public async createUser(data: Partial<User>): Promise<UserDocument> {
+    return this.userModel.create(data);
+  }
+
+
 
   // public async updateUserByAction(
   //   userId: string,
