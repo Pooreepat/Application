@@ -7,6 +7,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { PetModule } from './modules/pet/pet.module';
 import { MessageModule } from './modules/messages/messages.module';
+import { NewsModule } from './modules/news/news.module';
+import { TransactionModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -29,7 +31,9 @@ import { MessageModule } from './modules/messages/messages.module';
     AuthModule,
     ProfileModule,
     PetModule,
-    MessageModule
+    MessageModule,
+    NewsModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}
