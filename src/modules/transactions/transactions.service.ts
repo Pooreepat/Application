@@ -11,6 +11,21 @@ export class TransactionService {
     @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
   ) {}
 
+  public async getPagination(
+    filterQuery: any,
+    skip: number,
+    perPage: number,
+  ): Promise<[TransactionDocument[], number]> {
+    const transactions = await this.transactionModel
+      .find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .lean();
+    const total = await this.transactionModel.countDocuments(filterQuery);
+    return [transactions, total];
+  }
+
   async create(createTransactionDto: TransactionCreateDto): Promise<Transaction> {
     const createdTransaction = new this.transactionModel(createTransactionDto);
     return createdTransaction.save();

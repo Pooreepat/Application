@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { HttpResponsePagination } from 'src/interface/respones';
 import GetProfilePaginationDto from '../dto/getPagination.dto';
 import { IProfile } from 'src/modules/profile/profile.interface';
+import { TransactionService } from '../transactions.service';
 
 @Injectable()
 export class GetTransactionsPaginationUsecase {
   constructor(
-    private readonly petService: PetService,
+    private readonly transactionService: TransactionService,
     readonly configService: ConfigService,
   ) {}
 
@@ -16,23 +17,20 @@ export class GetTransactionsPaginationUsecase {
     profile: IProfile,
   ): Promise<HttpResponsePagination> {
     try {
-      const id = profile._id;
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
       const skip = (page - 1) * perPage;
-      const [pets, total] = await this.petService.getPagination(
-        {
-          _profileId: id,
-        },
+      const [transactions, total] = await this.transactionService.getPagination(
+        {},
         skip,
         perPage,
       );
-      if (!pets) {
+      if (!transactions) {
         throw new HttpException('ไม่พบข้อมูล', 404);
       }
       return {
-        data: pets,
+        data: transactions,
         total,
         page,
         perPage,
