@@ -15,12 +15,43 @@ export class MatchService {
     perPage: number,
   ): Promise<[MatchDocument[], number]> {
     const matches = await this.matchModel
-      .find(filterQuery)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(perPage)
-      .lean();
-    const total = await this.matchModel.countDocuments(filterQuery);
+      .aggregate([
+        { $match: filterQuery }, // Filter based on the provided query
+        { $sort: { createdAt: -1 } }, // Sort by creation date
+        { $skip: skip }, // Skip the number of records for pagination
+        { $limit: perPage }, // Limit the number of records per page
+        {
+          $lookup: {
+            from: 'profiles', // The collection for Profile
+            localField: '_profile1Id', // Field in the Match schema
+            foreignField: '_id', // Field in the Profile collection
+            as: 'profile1', // Name of the joined field
+          },
+        },
+        {
+          $lookup: {
+            from: 'profiles', // The collection for Profile
+            localField: '_profile2Id', // Field in the Match schema
+            foreignField: '_id', // Field in the Profile collection
+            as: 'profile2', // Name of the joined field
+          },
+        },
+        {
+          $lookup: {
+            from: 'pets', // The collection for Pet
+            localField: '_petId', // Field in the Match schema
+            foreignField: '_id', // Field in the Pet collection
+            as: 'pet', // Name of the joined field
+          },
+        },
+        { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } }, // Unwind the first profile
+        { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } }, // Unwind the second profile
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } }, // Unwind the pet
+      ])
+      .exec();
+
+    const total = await this.matchModel.countDocuments(filterQuery); // Total count
+
     return [matches, total];
   }
 
