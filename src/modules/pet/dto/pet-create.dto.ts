@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsNotEmpty,
@@ -150,4 +151,12 @@ export class PetCreateDto {
   @IsNotEmpty()
   @IsString()
   energy: string;
+
+  @ApiProperty({
+    description: 'true if the pet is hidden',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isHiddened?: boolean;
 }

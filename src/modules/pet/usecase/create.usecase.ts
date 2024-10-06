@@ -19,7 +19,6 @@ export class CreatePetUsecase {
     try {
       const pet = await this.petService.createPet({
         ...data,
-        isHiddened: false,
         status: Status.STRAY,
         _profileId: data.id,
       });
