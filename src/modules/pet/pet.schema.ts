@@ -57,9 +57,6 @@ export class Pet {
   birthdayAt: Date;
 
   @Prop({ type: [String], required: true })
-  characteristics: string[];
-
-  @Prop({ type: [String], required: true })
   vaccinationHistory: string[];
 
   @Prop({ type: String, enum: Theme })
@@ -74,14 +71,15 @@ export class Pet {
   @Prop({ type: String, required: true })
   size: string;
 
-  @Prop({ type: String, required: true })
-  energy: string;
 
   @Prop({ type: Boolean, default: false })
   isHiddened: Boolean;
 
   @Prop({ type: String, enum: Status, default: Status.STRAY })
   status: Status;
+
+  @Prop({ type: Boolean, default: false })
+  isSpayedOrNeutered: boolean;
 
   _id?: Types.ObjectId;
 }

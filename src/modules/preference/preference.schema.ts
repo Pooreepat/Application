@@ -19,12 +19,6 @@ export class Preference {
   size: string;
 
   @Prop([String])
-  characteristics: string[];
-
-  @Prop({ type: Number, min: 0, max: 100 })
-  energy: number;
-
-  @Prop([String])
   generalHealth: string[];
 
   @Prop([String])

@@ -17,6 +17,7 @@ export class CreatePetUsecase {
     data: PetCreateDto & { id: Types.ObjectId },
   ): Promise<HttpRespons> {
     try {
+      console.log(data);
       const pet = await this.petService.createPet({
         ...data,
         status: Status.STRAY,

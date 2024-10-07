@@ -23,16 +23,6 @@ export class PreferenceUpdateDto {
   size?: string;
 
   @IsOptional()
-  @IsArray({ message: 'ลักษณะพิเศษต้องเป็นอาร์เรย์' })
-  characteristics?: string[];
-
-  @IsOptional()
-  @IsNumber({}, { message: 'พลังงานต้องเป็นตัวเลข' })
-  @Min(0, { message: 'พลังงานต้องไม่น้อยกว่า 0' })
-  @Max(100, { message: 'พลังงานต้องไม่เกิน 100' })
-  energy?: number;
-
-  @IsOptional()
   @IsArray({ message: 'สุขภาพทั่วไปต้องเป็นอาร์เรย์' })
   generalHealth?: string[];
 

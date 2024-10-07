@@ -100,16 +100,6 @@ export class PetCreateDto {
   birthdayAt: Date;
 
   @ApiProperty({
-    description: 'Characteristics of the Pet',
-    type: [String],
-    example: ['Energetic', 'Loyal'],
-  })
-  @IsNotEmpty()
-  @IsArray()
-  @IsString({ each: true })
-  characteristics: string[];
-
-  @ApiProperty({
     description: 'Vaccination History of the Pet',
     type: [String],
     example: ['Rabies', 'Distemper'],
@@ -145,18 +135,18 @@ export class PetCreateDto {
   size: string;
 
   @ApiProperty({
-    description: 'Energy level of the Pet',
-    example: 'High',
-  })
-  @IsNotEmpty()
-  @IsString()
-  energy: string;
-
-  @ApiProperty({
     description: 'true if the pet is hidden',
     example: false,
   })
   @IsOptional()
   @IsBoolean()
   isHiddened?: boolean;
+
+  @ApiProperty({
+    description: 'Indicates if the Pet is alive',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isSpayedOrNeutered?: boolean;
 }
