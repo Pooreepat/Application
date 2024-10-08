@@ -16,7 +16,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { SwipeCreateDto } from './dto/swipes-create.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CreateSwipesUsecase } from './usecase/create.usecase';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
 import { User } from '../user/user.decorator';

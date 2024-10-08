@@ -12,7 +12,7 @@ import { PreferenceService } from './preference.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PreferenceCreateDto } from './dto/preference-create.dto';
 import { PreferenceUpdateDto } from './dto/preference-update.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('Preferences')
 @ApiBearerAuth()

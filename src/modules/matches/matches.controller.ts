@@ -6,7 +6,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
 import { IUser } from '../user/user.interface';

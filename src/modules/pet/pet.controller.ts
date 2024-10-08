@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { GetPetPaginationUsecase } from './usecase/getPagination.usecase';
 import { UpdatePetUsecase } from './usecase/update.usecase';
 import { GetByIdPetUsecase } from './usecase/getById.usecase';

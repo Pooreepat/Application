@@ -9,9 +9,6 @@ import {
 import { MessageType } from '../messages.constant';
 
 export class MessageCreateDto {
-  @ApiProperty({ example: '60bdf8a0f5d64845b8f41a23', description: 'Match ID' })
-  @IsNotEmpty({ message: 'ต้องระบุ matcheId' })
-  _matcheId: string;
 
   @ApiProperty({ example: 'text', enum: MessageType })
   @IsEnum(MessageType, { message: 'type ต้องเป็นค่าที่ถูกต้อง' })
