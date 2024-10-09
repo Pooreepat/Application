@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '../user/user.module';
@@ -30,5 +30,6 @@ const usecases = [LoginUsecase];
   ],
   controllers: [AuthController],
   providers: [JwtStrategy, AuthService, ...usecases],
+  exports: [JwtModule],
 })
 export class AuthModule {}

@@ -15,6 +15,11 @@ import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
+import { JwtService } from '@nestjs/jwt';
+import { UnauthorizedException } from '@nestjs/common';
+import { ProfileService } from '../profile/profile.service';
+import { ConfigService } from '@nestjs/config';
+import { Types } from 'mongoose';
 
 @WebSocketGateway({
   namespace: '/messages',
@@ -28,31 +33,40 @@ export class MessagesGateway
   @WebSocketServer() wss: Server;
   private activeUsers = new Map<string, string>();
 
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly jwtService: JwtService,
+    private readonly profileService: ProfileService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  afterInit(server: Server) {
+  afterInit() {
     console.log('WebSocket initialized.');
   }
 
-  handleConnection(@ConnectedSocket() socket: Socket) {
-    const userId = socket.handshake.auth.userId;
-    //   console.log(socket)
-    console.log(socket.data.user);
-    console.log(`User connected: ${userId} (Socket ID: ${socket.id})`);
-    this.activeUsers.set(userId, socket.id);
+  async handleConnection(@ConnectedSocket() socket: Socket) {
+    try {
+      const profile = await this.verifyUser(socket);
+      if (profile) {
+        socket.data.profile = profile;
+        this.activeUsers.set(profile._id.toString(), socket.id);
+        socket.emit('activeUsers', Array.from(this.activeUsers.keys()));
 
-    socket.emit('activeUsers', Array.from(this.activeUsers.keys()));
-    this.wss.emit('userStatus', { userId, status: 'online' });
+        this.wss.emit('userStatus', {
+          id: profile._id.toString(),
+          status: 'online',
+        });
+      }
+    } catch (error) {
+      socket.disconnect();
+    }
   }
 
-
   handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log(`Socket disconnected: ${socket.id}`);
-
-    const userId = this.findUserBySocketId(socket.id);
-    if (userId) {
-      this.activeUsers.delete(userId);
-      this.wss.emit('userStatus', { userId, status: 'offline' });
+    const id = this.findUserBySocketId(socket.id);
+    if (id) {
+      this.activeUsers.delete(id);
+      this.wss.emit('userStatus', { id, status: 'offline' });
     }
   }
 
@@ -61,58 +75,53 @@ export class MessagesGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody('matchId') matchId: string,
   ) {
+    if (!matchId) return;
     socket.join(matchId);
     socket.data.matchId = matchId;
-
-    const [messages, total] = await this.messageService.getPagination(
-      { _matcheId: matchId },
-      1,
-      30,
-    );
-
-    socket.emit('chatHistory', {
-      messages,
-      total,
-      page: 1,
-      perPage: 30,
-    });
-  }
-
-  @SubscribeMessage('loadMoreMessages')
-  async handleLoadMoreMessages(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() { page, perPage }: { page: number; perPage: number },
-  ) {
-    const matchId = socket.data.matchId;
-    const [messages, total] = await this.messageService.getPagination(
-      { _matcheId: matchId },
-      page,
-      perPage,
-    );
-
-    socket.emit('messageHistory', { messages, total, page, perPage });
   }
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() socket: Socket,
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
     @MessageBody() messageDto: MessageCreateDto,
   ) {
     const matchId = socket.data.matchId;
-    const message = await this.messageService.create({
-      ...messageDto,
-      _matcheId: matchId,
-      type: messageDto.type,
-      _senderId: user.profile._id,
-    });
+    if (!matchId) return;
 
-    this.wss.to(matchId).emit('newMessage', message);
+    try {
+      const message = await this.messageService.create({
+        ...messageDto,
+        _matcheId: new Types.ObjectId(matchId),
+        type: messageDto.type,
+        _senderId: new Types.ObjectId(socket.data.profile._id),
+      });
+      this.wss.to(matchId).emit('newMessage', message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
 
   private findUserBySocketId(socketId: string): string | undefined {
     return Array.from(this.activeUsers.entries()).find(
-      ([_, id]) => id === socketId,
+      ([, id]) => id === socketId,
     )?.[0];
+  }
+
+  private async verifyUser(socket: Socket) {
+    try {
+      const token = socket.handshake.headers.authorization;
+      if (!token) throw new UnauthorizedException();
+
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('authentication.secret'),
+      });
+
+      const { _id } = decoded;
+      return await this.profileService.getProfileByUserId(
+        new Types.ObjectId(_id),
+      );
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { TransactionCreateDto } from './dto/transactions-create.dto';
 import { TransactionUpdateDto } from './dto/transactions-update.dto';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import GetTransactionsPaginationDto from './dto/getPagination.dto';
 import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';

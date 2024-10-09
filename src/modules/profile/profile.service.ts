@@ -28,7 +28,7 @@ export class ProfileService {
     return this.profileModel.findById(id).lean();
   }
 
-  public async getProfileByUserId(userId: string): Promise<ProfileDocument> {
+  public async getProfileByUserId(userId: Types.ObjectId): Promise<ProfileDocument> {
     return this.profileModel.findOne({ _userId: userId }).lean();
   }
 

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { RegisterUsecase } from './usecase/register.usecase';
 import UserRegisterDto from './dto/user-register.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from './user.decorator';
 import { IUser } from './user.interface';
 import { CreateUserUsecase } from './usecase/create.usecase';

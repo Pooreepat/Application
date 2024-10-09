@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { IProfile } from '../profile.interface';
 import { ProfileService } from '../profile.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class ProfileTransformUserPipe<T> implements PipeTransform {
@@ -20,7 +21,7 @@ export class ProfileTransformUserPipe<T> implements PipeTransform {
   > {
     const { _id } = data;
     try {
-      const profile = await this.profileService.getProfileByUserId(_id);
+      const profile = await this.profileService.getProfileByUserId(new Types.ObjectId(_id));
       if (!profile) {
         throw new BadRequestException('ไม่พบโปรไฟล์ของผู้ใช้งาน');
       }

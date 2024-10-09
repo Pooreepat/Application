@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { GetProfilePaginationUsecase } from './usecase/getPagination.usecase';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import GetProfilePaginationDto from './dto/getPagination.dto';
 import UpdateProfileDto from './dto/update.dto';
 import { UpdateProfileUsecase } from './usecase/update.usecase';
