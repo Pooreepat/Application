@@ -16,6 +16,7 @@ import GetMatchesPaginationDto from './dto/matches-getPagination.dto';
 import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
 import { MatchUpdateStatusDto } from './dto/matches-update-status.dto';
 import { Types } from 'mongoose';
+import { GetByIdMatchUsecase } from './usecase/getById.usecase';
 
 @ApiTags('Matches')
 @ApiBearerAuth()
@@ -26,6 +27,7 @@ export class MatchController {
     private readonly matchService: MatchService,
     private readonly updateStatusMatchUsecase: UpdateStatusMatchUsecase,
     private readonly getMatchesPaginationUsecase: GetMatchesPaginationUsecase,
+    private readonly getByIdMatchUsecase: GetByIdMatchUsecase,
   ) {}
 
   @Get('status/:id')
@@ -53,5 +55,10 @@ export class MatchController {
     @Query() query: GetMatchesPaginationDto,
   ): Promise<any> {
     return this.getMatchesPaginationUsecase.execute(query, user.profile);
+  }
+
+  @Get(':id')
+  public async getMatchById(@Param('id') id: Types.ObjectId): Promise<any> {
+    return this.getByIdMatchUsecase.execute(id);
   }
 }

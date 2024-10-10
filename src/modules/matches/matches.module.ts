@@ -6,8 +6,13 @@ import { MatchController } from './matches.controller';
 import { UpdateStatusMatchUsecase } from './usecase/update-status.usecase';
 import { ProfileModule } from '../profile/profile.module';
 import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
+import { GetByIdMatchUsecase } from './usecase/getById.usecase';
 
-const usecases = [UpdateStatusMatchUsecase, GetMatchesPaginationUsecase];
+const usecases = [
+  UpdateStatusMatchUsecase,
+  GetMatchesPaginationUsecase,
+  GetByIdMatchUsecase,
+];
 
 @Module({
   imports: [

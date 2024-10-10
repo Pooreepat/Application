@@ -16,43 +16,78 @@ export class MatchService {
   ): Promise<[MatchDocument[], number]> {
     const matches = await this.matchModel
       .aggregate([
-        { $match: filterQuery }, // Filter based on the provided query
-        { $sort: { createdAt: -1 } }, // Sort by creation date
-        { $skip: skip }, // Skip the number of records for pagination
-        { $limit: perPage }, // Limit the number of records per page
+        { $match: filterQuery },
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: perPage },
         {
           $lookup: {
-            from: 'profiles', // The collection for Profile
-            localField: '_profile1Id', // Field in the Match schema
-            foreignField: '_id', // Field in the Profile collection
-            as: 'profile1', // Name of the joined field
+            from: 'profiles',
+            localField: '_profile1Id',
+            foreignField: '_id',
+            as: 'profile1',
           },
         },
         {
           $lookup: {
-            from: 'profiles', // The collection for Profile
-            localField: '_profile2Id', // Field in the Match schema
-            foreignField: '_id', // Field in the Profile collection
-            as: 'profile2', // Name of the joined field
+            from: 'profiles',
+            localField: '_profile2Id',
+            foreignField: '_id',
+            as: 'profile2',
           },
         },
         {
           $lookup: {
-            from: 'pets', // The collection for Pet
-            localField: '_petId', // Field in the Match schema
-            foreignField: '_id', // Field in the Pet collection
-            as: 'pet', // Name of the joined field
+            from: 'pets',
+            localField: '_petId',
+            foreignField: '_id',
+            as: 'pet',
           },
         },
-        { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } }, // Unwind the first profile
-        { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } }, // Unwind the second profile
-        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } }, // Unwind the pet
+        { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
       ])
       .exec();
 
-    const total = await this.matchModel.countDocuments(filterQuery); // Total count
+    const total = await this.matchModel.countDocuments(filterQuery);
 
     return [matches, total];
+  }
+
+  public async getMatchById(id: Types.ObjectId): Promise<MatchDocument> {
+    const match = await this.matchModel.aggregate([
+      { $match: { _id: new Types.ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile1Id',
+          foreignField: '_id',
+          as: 'profile1',
+        },
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile2Id',
+          foreignField: '_id',
+          as: 'profile2',
+        },
+      },
+      {
+        $lookup: {
+          from: 'pets',
+          localField: '_petId',
+          foreignField: '_id',
+          as: 'pet',
+        },
+      },
+      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+      { $limit: 1 },
+    ]);
+    return match.length > 0 ? match[0] : null;
   }
 
   async create(createMatchDto: Partial<MatchDocument>): Promise<Match> {
