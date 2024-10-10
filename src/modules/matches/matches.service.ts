@@ -120,7 +120,7 @@ export class MatchService {
     return updatedMatch;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: Types.ObjectId): Promise<void> {
     const result = await this.matchModel.findByIdAndDelete(id).exec();
     if (!result) {
       throw new NotFoundException('ไม่สามารถลบการแข่งขันได้');

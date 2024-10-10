@@ -18,12 +18,19 @@ export class UpdateStatusMatchUsecase {
   ): Promise<HttpRespons> {
     try {
       const { id, swipeType } = data;
-      const match = await this.matchesService.update(new Types.ObjectId(id), {
-        status: swipeType
-      });
+      if (data.swipeType === MatchStatus.UNMATCHED) {
+        await this.matchesService.delete(new Types.ObjectId(id));
+        return {
+          message: 'ปฏิเสธแมตช์สำเร็จ',
+        };
+      } else {
+        const match = await this.matchesService.update(new Types.ObjectId(id), {
+          status: swipeType,
+        });
 
-      if (!match) {
-        throw new HttpException('ไม่สามารถยอมรับแมตช์ได้', 500);
+        if (!match) {
+          throw new HttpException('ไม่สามารถยอมรับแมตช์ได้', 500);
+        }
       }
 
       return {
