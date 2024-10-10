@@ -4,6 +4,7 @@ import { HttpResponsePagination } from 'src/interface/respones';
 import GetMessagePaginationDto from '../dto/message-getPagination.dto';
 import { MessageService } from '../messages.service';
 import { IProfile } from 'src/modules/profile/profile.interface';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GetMessagePaginationUsecase {
@@ -24,7 +25,7 @@ export class GetMessagePaginationUsecase {
       const skip = (page - 1) * perPage;
       const [messages, total] = await this.messageService.getPagination(
         {
-          _matcheId: id,
+          _matchId: new Types.ObjectId(id),
         },
         skip,
         perPage,

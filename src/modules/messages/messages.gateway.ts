@@ -91,7 +91,7 @@ export class MessagesGateway
     try {
       const message = await this.messageService.create({
         ...messageDto,
-        _matcheId: new Types.ObjectId(matchId),
+        _matchId: new Types.ObjectId(matchId),
         type: messageDto.type,
         _senderId: new Types.ObjectId(socket.data.profile._id),
       });

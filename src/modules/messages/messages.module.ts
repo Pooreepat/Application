@@ -5,6 +5,10 @@ import { MessageService } from './messages.service';
 import { ProfileModule } from '../profile/profile.module';
 import { MessagesGateway } from './messages.gateway';
 import { AuthModule } from '../auth/auth.module';
+import { MessageController } from './messages.controller';
+import { GetMessagePaginationUsecase } from './usecase/getPagination.usecase';
+
+const usecases = [GetMessagePaginationUsecase ]
 
 @Module({
   imports: [
@@ -12,6 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     ProfileModule,
     AuthModule
   ],
-  providers: [MessageService, MessagesGateway],
+  controllers: [MessageController],
+  providers: [MessageService, MessagesGateway,...usecases],
 })
 export class MessageModule {}

@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Transaction, TransactionDocument } from './transactions.schema';
-import { TransactionCreateDto } from './dto/transactions-create.dto';
 import { TransactionUpdateDto } from './dto/transactions-update.dto';
 
 @Injectable()
 export class TransactionService {
   constructor(
-    @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
+    @InjectModel(Transaction.name)
+    private transactionModel: Model<TransactionDocument>,
   ) {}
 
   public async getPagination(
@@ -26,7 +26,9 @@ export class TransactionService {
     return [transactions, total];
   }
 
-  async create(createTransactionDto: TransactionCreateDto): Promise<Transaction> {
+  async create(
+    createTransactionDto: Partial<TransactionDocument>,
+  ): Promise<Transaction> {
     const createdTransaction = new this.transactionModel(createTransactionDto);
     return createdTransaction.save();
   }
@@ -43,8 +45,13 @@ export class TransactionService {
     return transaction;
   }
 
-  async update(id: string, updateTransactionDto: TransactionUpdateDto): Promise<Transaction> {
-    const transaction = await this.transactionModel.findByIdAndUpdate(id, updateTransactionDto, { new: true }).exec();
+  async update(
+    id: Types.ObjectId,
+    updateTransactionDto: TransactionUpdateDto,
+  ): Promise<Transaction> {
+    const transaction = await this.transactionModel
+      .findByIdAndUpdate(id, updateTransactionDto, { new: true })
+      .exec();
     if (!transaction) {
       throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
     }

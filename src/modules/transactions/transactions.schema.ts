@@ -14,10 +14,12 @@ export class Transaction {
   _numberId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
-  _matcheId: Types.ObjectId;
+  _matchId: Types.ObjectId;
 
   @Prop({ type: String, enum: TransactionStatus })
   status: TransactionStatus;
+
+  _id?: Types.ObjectId;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

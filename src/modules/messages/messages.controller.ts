@@ -1,19 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  UsePipes,
-  ValidationPipe,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
-import { MessageService } from './messages.service';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { MessageCreateDto } from './dto/message-create.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';

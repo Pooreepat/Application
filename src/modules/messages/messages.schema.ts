@@ -7,7 +7,7 @@ export type MessageDocument = Message & Document;
 @Schema({ timestamps: true })
 export class Message {
   @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
-  _matcheId: Types.ObjectId;
+  _matchId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
   _senderId: Types.ObjectId;

@@ -5,6 +5,8 @@ import { TransactionController } from './transactions.controller';
 import { Transaction, TransactionSchema } from './transactions.schema';
 import { ProfileModule } from '../profile/profile.module';
 import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecase';
+import { TransactionGateway } from './transactions.gateway';
+import { AuthModule } from '../auth/auth.module';
 
 const usecases = [GetTransactionsPaginationUsecase];
 
@@ -14,8 +16,9 @@ const usecases = [GetTransactionsPaginationUsecase];
       { name: Transaction.name, schema: TransactionSchema },
     ]),
     ProfileModule,
+    AuthModule,
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, ...usecases],
+  providers: [TransactionService, ...usecases, TransactionGateway],
 })
 export class TransactionModule {}
