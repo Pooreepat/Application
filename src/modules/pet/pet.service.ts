@@ -140,6 +140,23 @@ export class PetService {
       query.gender = preferences.gender;
     }
 
-    return this.petModel.find(query).exec();
+    // return this.petModel.find(query).exec();
+    return this.petModel
+      .aggregate([
+        { $match: query },
+        { $sort: { createdAt: -1 } },
+        // { $skip: skip },
+        // { $limit: perPage },
+        {
+          $lookup: {
+            from: 'profiles',
+            localField: '_profileId',
+            foreignField: '_id',
+            as: 'profile',
+          },
+        },
+        { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } },
+      ])
+      .exec();
   }
 }

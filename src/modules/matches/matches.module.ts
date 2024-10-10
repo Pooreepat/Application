@@ -3,11 +3,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Match, MatchSchema } from './matches.schema';
 import { MatchService } from './matches.service';
 import { MatchController } from './matches.controller';
-import { AcceptMatchesUsecase } from './usecase/accept.usecase';
+import { UpdateStatusMatchUsecase } from './usecase/update-status.usecase';
 import { ProfileModule } from '../profile/profile.module';
 import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
 
-const usecases = [AcceptMatchesUsecase, GetMatchesPaginationUsecase];
+const usecases = [UpdateStatusMatchUsecase, GetMatchesPaginationUsecase];
 
 @Module({
   imports: [

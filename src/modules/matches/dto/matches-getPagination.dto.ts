@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsMongoId } from 'class-validator';
+import { Types } from 'mongoose';
 
 export default class GetMatchesPaginationDto {
   @ApiProperty({
@@ -34,4 +35,15 @@ export default class GetMatchesPaginationDto {
     message: 'จำนวนข้อมูลต่อหน้าต้องเป็นตัวเลข',
   })
   perPage: string;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+    description: 'คำค้นหา',
+  })
+  @IsOptional()
+  @IsMongoId({
+    message: 'รหัสสัตว์เลี้ยงต้องเป็น MongoID',
+  })
+  _petId: Types.ObjectId;
 }

@@ -4,18 +4,22 @@ import { HttpRespons } from 'src/interface/respones';
 import { Types } from 'mongoose';
 import { MatchService } from '../matches.service';
 import { MatchStatus } from '../matches.constant';
+import { MatchUpdateStatusDto } from '../dto/matches-update-status.dto';
 
 @Injectable()
-export class AcceptMatchesUsecase {
+export class UpdateStatusMatchUsecase {
   constructor(
     private readonly matchesService: MatchService,
     readonly configService: ConfigService,
   ) {}
 
-  public async execute(data: { id: Types.ObjectId }): Promise<HttpRespons> {
+  public async execute(
+    data: MatchUpdateStatusDto & { id: Types.ObjectId },
+  ): Promise<HttpRespons> {
     try {
-      const match = await this.matchesService.update(data.id as any, {
-        status: MatchStatus.ACCEPTED,
+      const { id, swipeType } = data;
+      const match = await this.matchesService.update(new Types.ObjectId(id), {
+        status: swipeType
       });
 
       if (!match) {

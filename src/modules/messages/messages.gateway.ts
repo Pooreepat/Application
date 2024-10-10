@@ -11,10 +11,6 @@ import {
 import { Server, Socket } from 'socket.io';
 import { MessageService } from '../messages/messages.service';
 import { MessageCreateDto } from './dto/message-create.dto';
-import { User } from '../user/user.decorator';
-import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
-import { IUser } from '../user/user.interface';
-import { IProfile } from '../profile/profile.interface';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { ProfileService } from '../profile/profile.service';

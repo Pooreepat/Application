@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Match, MatchDocument } from './matches.schema';
 
 @Injectable()
@@ -73,7 +73,7 @@ export class MatchService {
   }
 
   async update(
-    id: string,
+    id: Types.ObjectId,
     updateMatchDto: Partial<MatchDocument>,
   ): Promise<Match> {
     const updatedMatch = await this.matchModel

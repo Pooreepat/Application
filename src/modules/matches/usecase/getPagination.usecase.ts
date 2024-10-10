@@ -5,6 +5,7 @@ import { IProfile } from 'src/modules/profile/profile.interface';
 import { MatchService } from '../matches.service';
 import GetMatchesPaginationDto from '../dto/matches-getPagination.dto';
 import { MatchStatus } from '../matches.constant';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GetMatchesPaginationUsecase {
@@ -19,6 +20,7 @@ export class GetMatchesPaginationUsecase {
   ): Promise<HttpResponsePagination> {
     try {
       const status = data.status;
+      const _petId = data._petId;
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
@@ -30,6 +32,9 @@ export class GetMatchesPaginationUsecase {
         query.status = status;
       }
 
+      if (_petId) {
+        query._petId = new Types.ObjectId(_petId);
+      }
       const skip = (page - 1) * perPage;
       const [matches, total] = await this.matchesService.getPagination(
         query,

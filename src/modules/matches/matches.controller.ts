@@ -11,9 +11,11 @@ import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
-import { AcceptMatchesUsecase } from './usecase/accept.usecase';
+import { UpdateStatusMatchUsecase } from './usecase/update-status.usecase';
 import GetMatchesPaginationDto from './dto/matches-getPagination.dto';
 import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
+import { MatchUpdateStatusDto } from './dto/matches-update-status.dto';
+import { Types } from 'mongoose';
 
 @ApiTags('Matches')
 @ApiBearerAuth()
@@ -22,19 +24,23 @@ import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
 export class MatchController {
   constructor(
     private readonly matchService: MatchService,
-    private readonly acceptMatchesUsecase: AcceptMatchesUsecase,
+    private readonly updateStatusMatchUsecase: UpdateStatusMatchUsecase,
     private readonly getMatchesPaginationUsecase: GetMatchesPaginationUsecase,
   ) {}
 
-  @Get('accept/:id')
+  @Get('status/:id')
   @ApiOperation({ summary: 'ยอมรับการสไลด์' })
   @ApiResponse({ status: 200, description: 'การสไลด์ถูกยอมรับแล้ว' })
   accept(
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Param('id') id: string,
+    @Param('id') id: Types.ObjectId,
+    @Query() query: MatchUpdateStatusDto,
   ) {
-    return this.acceptMatchesUsecase.execute({ id: id as any });
+    console.log('id', id);
+    console.log('query', query);
+    return this.updateStatusMatchUsecase.execute({ ...query, id });
   }
+
 
   // @Get()
   // findAll() {
