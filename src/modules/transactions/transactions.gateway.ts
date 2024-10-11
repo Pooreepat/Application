@@ -59,7 +59,7 @@ export class TransactionGateway
   ) {
     const roomId = matchId?.toString();
     if (!roomId) return;
-
+console.log(`joined room ${roomId}`);
     socket.join(roomId);
     socket.data.roomId = roomId;
     if (!this.roomConfirmations.has(roomId)) {
@@ -88,6 +88,13 @@ export class TransactionGateway
     if (!roomId) throw new BadRequestException('Room ID is required');
 
     const confirmations = this.roomConfirmations.get(roomId);
+console.log(confirmations)
+    if (confirmations.has(profileId)) {
+      console.log(`has already confirmed the transaction`);
+      return;
+    }
+    console.log(`has confirmed the transaction`);
+
     confirmations.add(profileId);
 
     if (confirmations.size >= 2) {
@@ -110,6 +117,8 @@ export class TransactionGateway
       secret: this.configService.get<string>('authentication.secret'),
     });
 
-    return this.profileService.getProfileByUserId(new Types.ObjectId(decoded._id));
+    return this.profileService.getProfileByUserId(
+      new Types.ObjectId(decoded._id),
+    );
   }
 }
