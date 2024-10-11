@@ -11,12 +11,14 @@ export enum Species {
 }
 
 export enum Theme {
-  RED = 'red',
-  ORANGE = 'orange',
-  YELLOW = 'yellow',
+  BLACK = 'black',
+  BROWN = 'brown',
+  GRAY = 'gray',
   GREEN = 'green',
+  ORANGE = 'orange',
+  PINK = 'pink',
+  RED = 'red',
   BLUE = 'blue',
-  PURPLE = 'purple',
 }
 
 export enum Status {
