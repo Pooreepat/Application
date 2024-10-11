@@ -38,8 +38,6 @@ export class MatchController {
     @Param('id') id: Types.ObjectId,
     @Query() query: MatchUpdateStatusDto,
   ) {
-    console.log('id', id);
-    console.log('query', query);
     return this.updateStatusMatchUsecase.execute({ ...query, id });
   }
 

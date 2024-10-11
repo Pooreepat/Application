@@ -1,12 +1,12 @@
 import {
   WebSocketGateway,
   SubscribeMessage,
-  MessageBody,
   ConnectedSocket,
   WebSocketServer,
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
@@ -16,18 +16,17 @@ import { ConfigService } from '@nestjs/config';
 import { Types } from 'mongoose';
 import { TransactionService } from './transactions.service';
 import { TransactionStatus } from './transactions.constant';
-import { TransactionUpdateDto } from './dto/transactions-update.dto';
 
 @WebSocketGateway({
   namespace: '/transactions',
-  cors: {
-    origin: '*',
-  },
+  cors: { origin: '*' },
 })
 export class TransactionGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() private wss: Server;
+
+  private roomConfirmations = new Map<string, Set<string>>(); // Track confirmations per room
 
   constructor(
     private readonly transactionService: TransactionService,
@@ -45,84 +44,72 @@ export class TransactionGateway
       const profile = await this.verifyUser(socket);
       socket.data.profile = profile;
     } catch (error) {
-      console.warn('Client connection rejected:', error.message);
       socket.disconnect();
     }
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log('Client disconnected:', socket.id);
+    this.roomConfirmations.delete(socket.data.roomId?.toString());
   }
 
   @SubscribeMessage('joinRoom')
-  async handleJoinRoom(
+  handleJoinRoom(
     @ConnectedSocket() socket: Socket,
     @MessageBody('matchId') matchId: Types.ObjectId,
   ) {
-    if (!matchId) return;
-    socket.join(matchId.toString());
-    socket.data.roomId = matchId.toString();
+    const roomId = matchId?.toString();
+    if (!roomId) return;
+
+    socket.join(roomId);
+    socket.data.roomId = roomId;
+    if (!this.roomConfirmations.has(roomId)) {
+      this.roomConfirmations.set(roomId, new Set());
+    }
   }
 
   @SubscribeMessage('createTransaction')
   async handleCreateTransaction(@ConnectedSocket() socket: Socket) {
-    if (!socket.data.roomId) {
-      throw new BadRequestException('Room ID is required');
-    }
+    const roomId = socket.data.roomId;
+    if (!roomId) throw new BadRequestException('Room ID is required');
 
-    try {
-      const transaction = await this.transactionService.create({
-        _matchId: new Types.ObjectId(socket.data.roomId),
-        status: TransactionStatus.PENDING,
-      });
-      socket.data.transactionId = transaction._id;
-      this.wss
-        .to(socket.data.roomId.toString())
-        .emit('transactionCreated', transaction);
-    } catch (error) {
-      throw new Error('Transaction creation failed');
-    }
+    const transaction = await this.transactionService.create({
+      _matchId: new Types.ObjectId(roomId),
+      status: TransactionStatus.PENDING,
+    });
+    socket.data.transactionId = transaction._id;
+
+    this.wss.to(roomId).emit('transactionCreated', transaction);
   }
 
-  @SubscribeMessage('updateTransactionStatus')
-  async handleUpdateTransactionStatus(
-    @MessageBody() data: TransactionUpdateDto,
-    @ConnectedSocket() socket: Socket,
-  ) {
-    const { status } = data;
+  @SubscribeMessage('confirmTransaction')
+  async handleConfirmTransaction(@ConnectedSocket() socket: Socket) {
     const roomId = socket.data.roomId;
+    const profileId = socket.data.profile._id.toString();
+    if (!roomId) throw new BadRequestException('Room ID is required');
 
-    if (!roomId) {
-      throw new BadRequestException('Room ID is required');
-    }
+    const confirmations = this.roomConfirmations.get(roomId);
+    confirmations.add(profileId);
 
-    try {
+    if (confirmations.size >= 2) {
       const updatedTransaction = await this.transactionService.update(
         new Types.ObjectId(socket.data.transactionId),
-        { status },
+        { status: TransactionStatus.COMPLETED },
       );
-      this.wss
-        .to(roomId.toString())
-        .emit('transactionUpdated', updatedTransaction);
-    } catch (error) {
-      throw new Error('Transaction update failed');
+      this.wss.to(roomId).emit('transactionConfirmed', updatedTransaction);
+      this.roomConfirmations.delete(roomId);
+    } else {
+      this.wss.to(roomId).emit('confirmationReceived', { profileId });
     }
   }
 
   private async verifyUser(socket: Socket) {
-    try {
-      const token = socket.handshake.headers.authorization;
-      if (!token) throw new UnauthorizedException('Token is missing');
+    const token = socket.handshake.headers.authorization;
+    if (!token) throw new UnauthorizedException('Token is missing');
 
-      const decoded = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('authentication.secret'),
-      });
+    const decoded = this.jwtService.verify(token, {
+      secret: this.configService.get<string>('authentication.secret'),
+    });
 
-      return await this.profileService.getProfileByUserId(
-        new Types.ObjectId(decoded._id),
-      );
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token');
-    }
+    return this.profileService.getProfileByUserId(new Types.ObjectId(decoded._id));
   }
 }
