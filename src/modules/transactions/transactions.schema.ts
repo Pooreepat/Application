@@ -15,6 +15,9 @@ export class Transaction {
   @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
   _matchId: Types.ObjectId;
 
+  @Prop([String])
+  images: string[];
+
   _id?: Types.ObjectId;
 }
 

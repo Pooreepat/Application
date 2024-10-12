@@ -15,6 +15,7 @@ import { ProfileService } from '../profile/profile.service';
 import { ConfigService } from '@nestjs/config';
 import { Types } from 'mongoose';
 import { TransactionService } from './transactions.service';
+import { MatchService } from '../matches/matches.service';
 
 @WebSocketGateway({
   namespace: '/transactions',
@@ -24,6 +25,7 @@ export class TransactionGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() private server: Server;
+
   private roomConfirmations = new Map<string, Set<string>>();
   private roomUsers = new Map<
     string,
@@ -32,6 +34,7 @@ export class TransactionGateway
 
   constructor(
     private readonly transactionService: TransactionService,
+    private readonly matchService: MatchService,
     private readonly jwtService: JwtService,
     private readonly profileService: ProfileService,
     private readonly configService: ConfigService,
@@ -44,10 +47,11 @@ export class TransactionGateway
   async handleConnection(@ConnectedSocket() socket: Socket) {
     try {
       const profile = await this.verifyUser(socket);
+      if (!profile) {
+        throw new UnauthorizedException('User not found');
+      }
       socket.data.profile = profile;
-      console.log(`User connected: ${profile._id}`);
     } catch (error) {
-      console.error('User verification failed:', error);
       socket.disconnect();
     }
   }
@@ -57,10 +61,14 @@ export class TransactionGateway
     const profileId = socket.data.profile?._id.toString();
 
     if (roomId && profileId) {
-      // Remove user from the roomUsers map
       const roomUsers = this.roomUsers.get(roomId);
       if (roomUsers) {
-        roomUsers.delete({ profileId, name: socket.data.profile.name });
+        roomUsers.forEach((user) => {
+          if (user.profileId === profileId) {
+            roomUsers.delete(user);
+          }
+        });
+
         if (roomUsers.size === 0) {
           this.roomUsers.delete(roomId);
         } else {
@@ -69,7 +77,6 @@ export class TransactionGateway
       }
 
       this.roomConfirmations.delete(roomId);
-      console.log(`User disconnected from room: ${roomId}`);
     }
   }
 
@@ -79,7 +86,6 @@ export class TransactionGateway
     @MessageBody('matchId') matchId: Types.ObjectId,
   ) {
     const roomId = matchId?.toString();
-    const profile = socket.data.profile;
 
     if (!roomId) {
       throw new BadRequestException('Invalid room ID');
@@ -87,20 +93,18 @@ export class TransactionGateway
 
     socket.join(roomId);
     socket.data.roomId = roomId;
-    console.log(`User joined room: ${roomId}`);
 
     if (!this.roomConfirmations.has(roomId)) {
       this.roomConfirmations.set(roomId, new Set());
     }
 
-    // Add the user to the roomUsers map
     if (!this.roomUsers.has(roomId)) {
       this.roomUsers.set(roomId, new Set());
     }
     const roomUsers = this.roomUsers.get(roomId);
+    const profile = socket.data.profile;
     roomUsers.add({ profileId: profile._id.toString(), name: profile.name });
 
-    // Send the updated user list to all users in the room
     this.server.to(roomId).emit('userListUpdated', Array.from(roomUsers));
   }
 
@@ -119,32 +123,31 @@ export class TransactionGateway
     }
 
     if (confirmations.has(profileId)) {
-      console.log(`User ${profileId} has already confirmed the transaction`);
       return;
     }
 
-    console.log(`User ${profileId} confirmed the transaction`);
     confirmations.add(profileId);
 
     if (confirmations.size >= 2) {
-      console.log(
-        `All participants have confirmed the transaction in room: ${roomId}`,
-      );
-
       try {
         const transaction = await this.transactionService.create({
           _matchId: new Types.ObjectId(roomId),
         });
+        const match = await this.matchService.update(
+          new Types.ObjectId(roomId),
+          {
+            isTransaction: true,
+          },
+        );
+        if (!match) {
+          throw new BadRequestException('Match not found');
+        }
         this.server.to(roomId).emit('transactionConfirmed', transaction);
         this.roomConfirmations.delete(roomId);
       } catch (error) {
-        console.error('Error during transaction creation:', error);
         throw new BadRequestException('Transaction creation failed');
       }
     } else {
-      console.log(
-        `Waiting for other participants to confirm in room: ${roomId}`,
-      );
       this.server.to(roomId).emit('confirmationReceived', { profileId });
     }
   }
@@ -153,12 +156,16 @@ export class TransactionGateway
     const token = socket.handshake.headers.authorization;
     if (!token) throw new UnauthorizedException('Token is missing');
 
-    const decoded = this.jwtService.verify(token, {
-      secret: this.configService.get<string>('authentication.secret'),
-    });
+    try {
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('authentication.secret'),
+      });
 
-    return this.profileService.getProfileByUserId(
-      new Types.ObjectId(decoded._id),
-    );
+      return this.profileService.getProfileByUserId(
+        new Types.ObjectId(decoded._id),
+      );
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }
