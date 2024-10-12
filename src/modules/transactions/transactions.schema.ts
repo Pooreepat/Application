@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { TransactionStatus } from './transactions.constant';
 import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type TransactionDocument = Transaction & Document;
@@ -15,9 +14,6 @@ export class Transaction {
 
   @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
   _matchId: Types.ObjectId;
-
-  @Prop({ type: String, enum: TransactionStatus })
-  status: TransactionStatus;
 
   _id?: Types.ObjectId;
 }

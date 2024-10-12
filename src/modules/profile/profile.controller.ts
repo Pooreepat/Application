@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GetProfilePaginationUsecase } from './usecase/getPagination.usecase';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import GetProfilePaginationDto from './dto/getPagination.dto';
 import UpdateProfileDto from './dto/update.dto';
@@ -18,6 +18,7 @@ import { User } from '../user/user.decorator';
 import { IUser } from '../user/user.interface';
 import { ProfileTransformUserPipe } from './pipe/merchant-transform-user.pipe';
 import { GetByIdProfileUsecase } from './usecase/getById.usecase';
+import { Types } from 'mongoose';
 
 @ApiTags('Profile')
 @ApiBearerAuth()
@@ -27,7 +28,7 @@ export class ProfileController {
   constructor(
     private readonly getProfilePaginationUsecase: GetProfilePaginationUsecase,
     private readonly updateProfileUsecase: UpdateProfileUsecase,
-    // private readonly getByIdProfileUsecase: GetByIdProfileUsecase,
+    private readonly getByIdProfileUsecase: GetByIdProfileUsecase,
   ) {}
 
   @Get()
@@ -44,10 +45,11 @@ export class ProfileController {
     return user.profile;
   }
 
-  // @Get(':id')
-  // public async getProfileById(@Param('id') id: string): Promise<any> {
-  //   return this.getByIdProfileUsecase.execute(id);
-  // }
+  @Get(':id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the profile' })
+  public async getProfileById(@Param('id') id: Types.ObjectId): Promise<any> {
+    return this.getByIdProfileUsecase.execute(id);
+  }
 
   @Put('self')
   public async updateSelfProfile(

@@ -6,8 +6,9 @@ import { UserService } from './user.service';
 import { RegisterUsecase } from './usecase/register.usecase';
 import { ProfileModule } from '../profile/profile.module';
 import { CreateUserUsecase } from './usecase/create.usecase';
+import { GetByIdUserUsecase } from './usecase/getById.usecase';
 
-const usecases = [RegisterUsecase,CreateUserUsecase];
+const usecases = [RegisterUsecase,CreateUserUsecase,GetByIdUserUsecase];
 
 @Module({
   imports: [

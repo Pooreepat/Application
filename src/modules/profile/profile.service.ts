@@ -24,11 +24,13 @@ export class ProfileService {
     return [profiles, total];
   }
 
-  public async getProfileById(id: string | Types.ObjectId): Promise<ProfileDocument> {
+  public async getProfileById(id: Types.ObjectId): Promise<IProfile> {
     return this.profileModel.findById(id).lean();
   }
 
-  public async getProfileByUserId(userId: Types.ObjectId): Promise<ProfileDocument> {
+  public async getProfileByUserId(
+    userId: Types.ObjectId,
+  ): Promise<ProfileDocument> {
     return this.profileModel.findOne({ _userId: userId }).lean();
   }
 

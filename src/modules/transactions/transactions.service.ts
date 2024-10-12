@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Transaction, TransactionDocument } from './transactions.schema';
 import { TransactionUpdateDto } from './dto/transactions-update.dto';
+import { ITransaction } from './transactions.interface';
 
 @Injectable()
 export class TransactionService {
@@ -64,4 +65,13 @@ export class TransactionService {
       throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
     }
   }
+  
+  async getTransactionById (id: Types.ObjectId): Promise<ITransaction> {
+    const transaction = await this.transactionModel.findById(id).exec();
+    if (!transaction) {
+      throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
+    }
+    return transaction;
+  }
+
 }

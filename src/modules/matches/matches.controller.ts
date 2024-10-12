@@ -3,6 +3,7 @@ import { MatchService } from './matches.service';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -41,7 +42,6 @@ export class MatchController {
     return this.updateStatusMatchUsecase.execute({ ...query, id });
   }
 
-
   // @Get()
   // findAll() {
   //   return this.matchService.findAll();
@@ -56,6 +56,7 @@ export class MatchController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the match' })
   public async getMatchById(@Param('id') id: Types.ObjectId): Promise<any> {
     return this.getByIdMatchUsecase.execute(id);
   }

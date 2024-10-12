@@ -7,8 +7,10 @@ import { ProfileModule } from '../profile/profile.module';
 import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecase';
 import { TransactionGateway } from './transactions.gateway';
 import { AuthModule } from '../auth/auth.module';
+import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
+import { MatchModule } from '../matches/matches.module';
 
-const usecases = [GetTransactionsPaginationUsecase];
+const usecases = [GetTransactionsPaginationUsecase,GetByIdTransactionsUsecase];
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ const usecases = [GetTransactionsPaginationUsecase];
     ]),
     ProfileModule,
     AuthModule,
+    MatchModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService, ...usecases, TransactionGateway],

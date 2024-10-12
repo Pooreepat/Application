@@ -24,6 +24,9 @@ export class Match {
 
   @Prop({ type: String, enum: MatchStatus })
   status: MatchStatus;
+
+  @Prop({ type: Boolean, default: false })
+  isTransaction: boolean;
 }
 
 export const MatchSchema = SchemaFactory.createForClass(Match);

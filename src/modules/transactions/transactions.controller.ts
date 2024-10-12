@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import GetTransactionsPaginationDto from './dto/getPagination.dto';
 import { User } from '../user/user.decorator';
@@ -7,6 +7,9 @@ import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-use
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
 import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecase';
+import { Types } from 'mongoose';
+import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
+import { ITransaction } from './transactions.interface';
 
 @ApiTags('Transactions')
 @ApiBearerAuth()
@@ -15,6 +18,7 @@ import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecas
 export class TransactionController {
   constructor(
     private readonly getTransactionsPaginationUsecase: GetTransactionsPaginationUsecase,
+    private readonly getByIdTransactionsUsecase: GetByIdTransactionsUsecase,
   ) {}
 
   @Get()
@@ -23,5 +27,16 @@ export class TransactionController {
     @Query() query: GetTransactionsPaginationDto,
   ): Promise<any> {
     return this.getTransactionsPaginationUsecase.execute(query, user.profile);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the transaction' })
+  public async getTransaction(
+    @Param('id') id: Types.ObjectId,
+    @User() user: IUser,
+  ): Promise<ITransaction> {
+    return this.getByIdTransactionsUsecase.execute(id);
   }
 }

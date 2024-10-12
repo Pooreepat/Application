@@ -11,7 +11,7 @@ export class GetByIdPetUsecase {
     readonly configService: ConfigService,
   ) {}
 
-  public async execute(id: string | Types.ObjectId): Promise<IPet> {
+  public async execute(id: Types.ObjectId): Promise<IPet> {
     try {
       const pet = await this.petService.getPetById(id);
 

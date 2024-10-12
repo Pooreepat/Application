@@ -11,9 +11,9 @@ export class GetByIdProfileUsecase {
     readonly configService: ConfigService,
   ) {}
 
-  public async execute(id: string | Types.ObjectId): Promise<IProfile> {
+  public async execute(id: Types.ObjectId): Promise<IProfile> {
     try {
-      const profile = await this.profileService.getProfileById(id);
+      const profile = await this.profileService.getProfileById(new Types.ObjectId(id));
 
       if (!profile) {
         throw new HttpException('ไม่พบโปรไฟล์', 404);

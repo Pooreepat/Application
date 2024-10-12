@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { User, UserDocument } from './user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, MongooseError } from 'mongoose';
+import { Model, MongooseError, Types } from 'mongoose';
 import { EUserRole } from './user.constant';
 import UserRegisterDto from './dto/user-register.dto';
 import UserLoginDto from '../auth/dto/user-login.dto';
+import { IUser } from './user.interface';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  public async getUserById(userId: string): Promise<UserDocument> {
+  public async getUserById(userId: Types.ObjectId): Promise<IUser> {
     return this.userModel.findById(userId).lean();
   }
 

@@ -23,6 +23,7 @@ import { CreatePetUsecase } from './usecase/create.usecase';
 import { PetCreateDto } from './dto/pet-create.dto';
 import { SearchPetUsecase } from './usecase/search.usecase';
 import PetSearchDto from './dto/pet-search.dto';
+import { Types } from 'mongoose';
 
 @ApiTags('Pet')
 @ApiBearerAuth()
@@ -72,7 +73,7 @@ export class PetController {
   //   }
 
   @Get(':id')
-  public async getPetById(@Param('id') id: string): Promise<any> {
+  public async getPetById(@Param('id') id: Types.ObjectId): Promise<any> {
     return this.getByIdPetUsecase.execute(id);
   }
 
