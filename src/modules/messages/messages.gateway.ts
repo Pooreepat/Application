@@ -58,9 +58,16 @@ export class MessagesGateway
     }
   }
 
-  handleDisconnect(@ConnectedSocket() socket: Socket) {
+  async handleDisconnect(@ConnectedSocket() socket: Socket) {
     const id = this.findUserBySocketId(socket.id);
     if (id) {
+      await this.profileService.updateProfile(
+        new Types.ObjectId(socket.data.profile._id),
+        {
+          lastLogin: new Date(),
+        },
+      );
+
       this.activeUsers.delete(id);
       this.wss.emit('userStatus', { id, status: 'offline' });
     }

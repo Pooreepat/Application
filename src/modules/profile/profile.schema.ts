@@ -49,6 +49,9 @@ export class Profile {
   @Prop({ type: String })
   lifestyle: string;
 
+  @Prop({ type: Date })
+  lastLogin: Date;
+
   _id?: Types.ObjectId;
 }
 

@@ -41,9 +41,6 @@ export class User {
   })
   password: string;
 
-  @Prop({ type: Date })
-  lastLogin: Date;
-
   _id?: Types.ObjectId;
 }
 

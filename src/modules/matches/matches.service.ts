@@ -47,6 +47,15 @@ export class MatchService {
         { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
         { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
         { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: '$pet._id',
+            match: { $first: '$$ROOT' },
+          },
+        },
+        {
+          $replaceRoot: { newRoot: '$match' },
+        },
       ])
       .exec();
 
