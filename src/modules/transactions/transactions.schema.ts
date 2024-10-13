@@ -15,6 +15,15 @@ export class Transaction {
   @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
   _matchId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
+  _profile1Id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
+  _profile2Id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Pet' })
+  _petId: Types.ObjectId;
+
   @Prop([String])
   images: string[];
 

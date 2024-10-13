@@ -77,16 +77,18 @@ export class PetController {
     return this.getByIdPetUsecase.execute(id);
   }
 
-  @Put('self')
-  public async updateSelfPet(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Body() data: UpdatePetDto,
-  ): Promise<any> {
-    return this.updatePetUsecase.execute({
-      ...data,
-      id: user.profile._id,
-    });
-  }
+  // @Put('self')
+  // public async updateSelfPet(
+  //   @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+  //   @Body() data: UpdatePetDto,
+  // ): Promise<any> {
+  //   return this.updatePetUsecase.execute(
+  //     {
+  //       ...data,
+  //     },
+  //     user,
+  //   );
+  // }
 
   @Put(':id')
   public async updatePet(
@@ -94,9 +96,12 @@ export class PetController {
     @Param('id') id: string,
     @Body() data: UpdatePetDto,
   ): Promise<any> {
-    return this.updatePetUsecase.execute({
-      ...data,
-      id,
-    });
+    return this.updatePetUsecase.execute(
+      {
+        ...data,
+        id,
+      },
+      user,
+    );
   }
 }

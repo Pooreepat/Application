@@ -20,9 +20,13 @@ export class GetTransactionsPaginationUsecase {
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
+      const query: any = {
+        $or: [{ _profile1Id: profile._id }, { _profile2Id: profile._id }],
+      };
+
       const skip = (page - 1) * perPage;
       const [transactions, total] = await this.transactionService.getPagination(
-        {},
+        query,
         skip,
         perPage,
       );

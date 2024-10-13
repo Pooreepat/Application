@@ -133,9 +133,6 @@ export class TransactionGateway
 
     if (confirmations.size >= 2) {
       try {
-        const transaction = await this.transactionService.create({
-          _matchId: new Types.ObjectId(roomId),
-        });
         const match = await this.matchService.update(
           new Types.ObjectId(roomId),
           {
@@ -144,6 +141,15 @@ export class TransactionGateway
         );
         if (!match) {
           throw new BadRequestException('Match not found');
+        }
+        const transaction = await this.transactionService.create({
+          _matchId: new Types.ObjectId(roomId),
+          _petId: new Types.ObjectId(match._petId),
+          _profile1Id: new Types.ObjectId(match._profile1Id),
+          _profile2Id: new Types.ObjectId(match._profile2Id),
+        });
+        if (!transaction) {
+          throw new BadRequestException('Transaction creation failed');
         }
         const pet = await this.petService.update(
           new Types.ObjectId(match._petId),

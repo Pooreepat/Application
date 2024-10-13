@@ -17,12 +17,39 @@ export class TransactionService {
     skip: number,
     perPage: number,
   ): Promise<[TransactionDocument[], number]> {
-    const transactions = await this.transactionModel
-      .find(filterQuery)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(perPage)
-      .lean();
+    const transactions = await this.transactionModel.aggregate([
+      { $match: filterQuery },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: perPage },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile1Id',
+          foreignField: '_id',
+          as: 'profile1',
+        },
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile2Id',
+          foreignField: '_id',
+          as: 'profile2',
+        },
+      },
+      {
+        $lookup: {
+          from: 'pets',
+          localField: '_petId',
+          foreignField: '_id',
+          as: 'pet',
+        },
+      },
+      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+    ]);
     const total = await this.transactionModel.countDocuments(filterQuery);
     return [transactions, total];
   }
@@ -65,13 +92,12 @@ export class TransactionService {
       throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
     }
   }
-  
-  async getTransactionById (id: Types.ObjectId): Promise<ITransaction> {
+
+  async getTransactionById(id: Types.ObjectId): Promise<ITransaction> {
     const transaction = await this.transactionModel.findById(id).exec();
     if (!transaction) {
       throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
     }
     return transaction;
   }
-
 }
