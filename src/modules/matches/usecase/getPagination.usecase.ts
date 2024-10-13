@@ -40,6 +40,7 @@ export class GetMatchesPaginationUsecase {
         query,
         skip,
         perPage,
+        _petId ? true : false,
       );
       if (!matches) {
         throw new HttpException('ไม่พบข้อมูล', 404);

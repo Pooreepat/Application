@@ -16,6 +16,8 @@ import { ConfigService } from '@nestjs/config';
 import { Types } from 'mongoose';
 import { TransactionService } from './transactions.service';
 import { MatchService } from '../matches/matches.service';
+import { PetService } from '../pet/pet.service';
+import { Status } from '../pet/pet.constant';
 
 @WebSocketGateway({
   namespace: '/transactions',
@@ -33,6 +35,7 @@ export class TransactionGateway
   >();
 
   constructor(
+    private readonly petService: PetService,
     private readonly transactionService: TransactionService,
     private readonly matchService: MatchService,
     private readonly jwtService: JwtService,
@@ -141,6 +144,16 @@ export class TransactionGateway
         );
         if (!match) {
           throw new BadRequestException('Match not found');
+        }
+        const pet = await this.petService.update(
+          new Types.ObjectId(match._petId),
+          {
+            _profileId: new Types.ObjectId(match._profile1Id),
+            status: Status.SUCCESSFUL,
+          },
+        );
+        if (!pet) {
+          throw new BadRequestException('Pet not found');
         }
         this.server.to(roomId).emit('transactionConfirmed', transaction);
         this.roomConfirmations.delete(roomId);

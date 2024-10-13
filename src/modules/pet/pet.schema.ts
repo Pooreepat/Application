@@ -71,7 +71,6 @@ export class Pet {
   @Prop({ type: String, required: true })
   size: string;
 
-
   @Prop({ type: Boolean, default: false })
   isHiddened: Boolean;
 

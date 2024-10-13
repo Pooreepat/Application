@@ -13,40 +13,44 @@ export class MatchService {
     filterQuery: any,
     skip: number,
     perPage: number,
+    isPet: boolean = true,
   ): Promise<[MatchDocument[], number]> {
-    const matches = await this.matchModel
-      .aggregate([
-        { $match: filterQuery },
-        { $sort: { createdAt: -1 } },
-        { $skip: skip },
-        { $limit: perPage },
-        {
-          $lookup: {
-            from: 'profiles',
-            localField: '_profile1Id',
-            foreignField: '_id',
-            as: 'profile1',
-          },
+    const pipeline: any[] = [
+      { $match: filterQuery },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: perPage },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile1Id',
+          foreignField: '_id',
+          as: 'profile1',
         },
-        {
-          $lookup: {
-            from: 'profiles',
-            localField: '_profile2Id',
-            foreignField: '_id',
-            as: 'profile2',
-          },
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile2Id',
+          foreignField: '_id',
+          as: 'profile2',
         },
-        {
-          $lookup: {
-            from: 'pets',
-            localField: '_petId',
-            foreignField: '_id',
-            as: 'pet',
-          },
+      },
+      {
+        $lookup: {
+          from: 'pets',
+          localField: '_petId',
+          foreignField: '_id',
+          as: 'pet',
         },
-        { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
-        { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
-        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+      },
+      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+    ];
+
+    if (!isPet) {
+      pipeline.push(
         {
           $group: {
             _id: '$pet._id',
@@ -56,8 +60,10 @@ export class MatchService {
         {
           $replaceRoot: { newRoot: '$match' },
         },
-      ])
-      .exec();
+      );
+    }
+
+    const matches = await this.matchModel.aggregate(pipeline).exec();
 
     const total = await this.matchModel.countDocuments(filterQuery);
 

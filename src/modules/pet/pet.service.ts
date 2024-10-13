@@ -65,7 +65,7 @@ export class PetService {
     return pet;
   }
 
-  async update(id: string, updatePetDto: PetUpdateDto): Promise<Pet> {
+  async update(id: Types.ObjectId, updatePetDto: Partial<PetDocument>): Promise<Pet> {
     const pet = await this.petModel
       .findByIdAndUpdate(id, updatePetDto, { new: true })
       .exec();

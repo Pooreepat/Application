@@ -9,6 +9,7 @@ import { TransactionGateway } from './transactions.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
 import { MatchModule } from '../matches/matches.module';
+import { PetModule } from '../pet/pet.module';
 
 const usecases = [GetTransactionsPaginationUsecase,GetByIdTransactionsUsecase];
 
@@ -20,6 +21,7 @@ const usecases = [GetTransactionsPaginationUsecase,GetByIdTransactionsUsecase];
     ProfileModule,
     AuthModule,
     MatchModule,
+    PetModule
   ],
   controllers: [TransactionController],
   providers: [TransactionService, ...usecases, TransactionGateway],
