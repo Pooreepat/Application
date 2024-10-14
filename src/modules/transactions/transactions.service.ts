@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Transaction, TransactionDocument } from './transactions.schema';
-import { TransactionUpdateDto } from './dto/transactions-update.dto';
 import { ITransaction } from './transactions.interface';
 
 @Injectable()
@@ -75,7 +74,7 @@ export class TransactionService {
 
   async update(
     id: Types.ObjectId,
-    updateTransactionDto: TransactionUpdateDto,
+    updateTransactionDto: Partial<TransactionDocument>,
   ): Promise<Transaction> {
     const transaction = await this.transactionModel
       .findByIdAndUpdate(id, updateTransactionDto, { new: true })

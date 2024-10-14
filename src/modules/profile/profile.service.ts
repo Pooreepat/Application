@@ -12,14 +12,44 @@ export class ProfileService {
 
   public async getPagination(
     filterQuery: any,
+    filterUser: any,
     skip: number,
     perPage: number,
   ): Promise<[ProfileDocument[], number]> {
-    const profiles = await this.profileModel
-      .find(filterQuery)
-      .skip(skip)
-      .limit(perPage)
-      .lean();
+    const profiles = await this.profileModel.aggregate([
+      {
+        $match: filterQuery,
+      },
+      {
+        $lookup: {
+          from: 'user',
+          localField: '_userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $match: filterUser,
+      },
+      {
+        $project: {
+          user: 0,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: perPage,
+      },
+    ]);
+
     const total = await this.profileModel.countDocuments(filterQuery);
     return [profiles, total];
   }
@@ -42,21 +72,21 @@ export class ProfileService {
       {
         $unwind: {
           path: '$user',
-          preserveNullAndEmptyArrays: true, 
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
         $addFields: {
-          email: '$user.email', 
+          email: '$user.email',
         },
       },
       {
         $project: {
-          user: 0, 
+          user: 0,
         },
       },
       {
-        $limit: 1, 
+        $limit: 1,
       },
     ]);
 
@@ -78,5 +108,9 @@ export class ProfileService {
     data: Partial<IProfile>,
   ): Promise<ProfileDocument> {
     return this.profileModel.findByIdAndUpdate(profileId, data, { new: true });
+  }
+
+  public async deleteProfile(id: Types.ObjectId): Promise<ProfileDocument> {
+    return this.profileModel.findByIdAndDelete(id);
   }
 }

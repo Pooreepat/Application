@@ -27,6 +27,8 @@ export class Match {
 
   @Prop({ type: Boolean, default: false })
   isTransaction: boolean;
+
+  _id?: Types.ObjectId;
 }
 
 export const MatchSchema = SchemaFactory.createForClass(Match);

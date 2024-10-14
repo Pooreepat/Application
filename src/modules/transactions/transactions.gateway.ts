@@ -142,6 +142,10 @@ export class TransactionGateway
         if (!match) {
           throw new BadRequestException('Match not found');
         }
+        await this.matchService.removeMatches(
+          new Types.ObjectId(match._petId),
+          new Types.ObjectId(match._id),
+        );
         const transaction = await this.transactionService.create({
           _matchId: new Types.ObjectId(roomId),
           _petId: new Types.ObjectId(match._petId),

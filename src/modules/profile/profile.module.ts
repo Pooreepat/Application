@@ -7,11 +7,13 @@ import { GetProfilePaginationUsecase } from './usecase/getPagination.usecase';
 import { UserModule } from '../user/user.module';
 import { UpdateProfileUsecase } from './usecase/update.usecase';
 import { GetByIdProfileUsecase } from './usecase/getById.usecase';
+import { DeleteProfileUsecase } from './usecase/DeleteById.usecase copy';
 
 const usecases = [
   GetProfilePaginationUsecase,
   UpdateProfileUsecase,
   GetByIdProfileUsecase,
+  DeleteProfileUsecase
 ];
 
 @Module({

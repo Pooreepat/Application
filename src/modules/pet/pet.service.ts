@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { IPet } from './pet.interface';
 import { PetCreateDto } from './dto/pet-create.dto';
 import PetUpdateDto from './dto/pet-update.dto';
+import { Status } from './pet.constant';
 
 @Injectable()
 export class PetService {
@@ -65,7 +66,10 @@ export class PetService {
     return pet;
   }
 
-  async update(id: Types.ObjectId, updatePetDto: Partial<PetDocument>): Promise<Pet> {
+  async update(
+    id: Types.ObjectId,
+    updatePetDto: Partial<PetDocument>,
+  ): Promise<Pet> {
     const pet = await this.petModel
       .findByIdAndUpdate(id, updatePetDto, { new: true })
       .exec();
@@ -114,6 +118,7 @@ export class PetService {
     );
     const query: any = {
       _id: { $nin: excludePetIds },
+      status: Status.STRAY,
     };
 
     if (preferences.species !== 'both') {

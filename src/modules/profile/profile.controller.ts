@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -19,6 +20,7 @@ import { IUser } from '../user/user.interface';
 import { ProfileTransformUserPipe } from './pipe/merchant-transform-user.pipe';
 import { GetByIdProfileUsecase } from './usecase/getById.usecase';
 import { Types } from 'mongoose';
+import { DeleteProfileUsecase } from './usecase/DeleteById.usecase copy';
 
 @ApiTags('Profile')
 @ApiBearerAuth()
@@ -29,6 +31,7 @@ export class ProfileController {
     private readonly getProfilePaginationUsecase: GetProfilePaginationUsecase,
     private readonly updateProfileUsecase: UpdateProfileUsecase,
     private readonly getByIdProfileUsecase: GetByIdProfileUsecase,
+    private readonly deleteProfileUsecase: DeleteProfileUsecase,
   ) {}
 
   @Get()
@@ -72,5 +75,10 @@ export class ProfileController {
       ...data,
       id,
     });
+  }
+
+  @Delete(':id')
+  public async deleteProfile(@Param('id') id: Types.ObjectId): Promise<any> {
+    return this.deleteProfileUsecase.execute(id);
   }
 }

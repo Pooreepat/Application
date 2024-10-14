@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionStatus } from '../transactions.constant';
-import { IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class TransactionUpdateDto {
+export class UpdateTransactionDto {
   @ApiProperty({
-    example: 'PENDING',
-    description: 'สถานะธุรกรรม',
-    enum: TransactionStatus,
+    example: 'https://www.google.com',
+    description: 'รูปภาพ',
+    type: [String],
   })
-  @IsEnum(TransactionStatus, { message: 'สถานะธุรกรรมไม่ถูกต้อง' })
-  status: TransactionStatus;
+  @IsNotEmpty({ message: 'รูปภาพห้ามว่าง' })
+  @IsString({ each: true, message: 'รูปภาพต้องเป็น URL' })
+  images: string[];
 }

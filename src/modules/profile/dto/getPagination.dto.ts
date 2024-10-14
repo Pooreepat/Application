@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { EUserRole } from 'src/modules/user/user.constant';
 
 export default class GetProfilePaginationDto {
   @ApiProperty({
@@ -23,4 +24,13 @@ export default class GetProfilePaginationDto {
     message: 'จำนวนข้อมูลต่อหน้าต้องเป็นตัวเลข',
   })
   perPage: string;
+
+  @ApiProperty({
+    required: false,
+    type: EUserRole,
+    description: 'บทบาท',
+  })
+  @IsNotEmpty()
+  @IsEnum(EUserRole)
+  role: EUserRole;
 }

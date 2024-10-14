@@ -71,6 +71,10 @@ export class UserService {
     return this.userModel.findByIdAndUpdate(userId, data, { new: true });
   }
 
+  public async deleteUser(userId: Types.ObjectId): Promise<UserDocument> {
+    return this.userModel.findByIdAndDelete(userId);
+  }
+
   // public async updateUserByAction(
   //   userId: string,
   //   data: Partial<User>,

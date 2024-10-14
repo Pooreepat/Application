@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query, Param, Body, Put } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import GetTransactionsPaginationDto from './dto/getPagination.dto';
@@ -10,6 +10,8 @@ import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecas
 import { Types } from 'mongoose';
 import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
 import { ITransaction } from './transactions.interface';
+import { UpdateTransactionDto } from './dto/transactions-update.dto';
+import { UpdateTransactionUsecase } from './usecase/update.usecase';
 
 @ApiTags('Transactions')
 @ApiBearerAuth()
@@ -19,6 +21,7 @@ export class TransactionController {
   constructor(
     private readonly getTransactionsPaginationUsecase: GetTransactionsPaginationUsecase,
     private readonly getByIdTransactionsUsecase: GetByIdTransactionsUsecase,
+    private readonly updateTransactionUsecase: UpdateTransactionUsecase,
   ) {}
 
   @Get()
@@ -29,8 +32,6 @@ export class TransactionController {
     return this.getTransactionsPaginationUsecase.execute(query, user.profile);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiParam({ name: 'id', type: String, description: 'The id of the transaction' })
   public async getTransaction(
@@ -39,4 +40,14 @@ export class TransactionController {
   ): Promise<ITransaction> {
     return this.getByIdTransactionsUsecase.execute(id);
   }
+
+  @Put(':id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the transaction' })
+  public async updateTransaction(
+    @Param('id') id: Types.ObjectId,
+    @Body() data: UpdateTransactionDto,
+  ): Promise<any> {
+    return this.updateTransactionUsecase.execute(id, data);
+  }
+
 }

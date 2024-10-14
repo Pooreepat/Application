@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Match, MatchDocument } from './matches.schema';
+import { IMatch } from './matches.interface';
 
 @Injectable()
 export class MatchService {
@@ -125,7 +126,7 @@ export class MatchService {
   async update(
     id: Types.ObjectId,
     updateMatchDto: Partial<MatchDocument>,
-  ): Promise<Match> {
+  ): Promise<IMatch> {
     const updatedMatch = await this.matchModel
       .findByIdAndUpdate(id, updateMatchDto, { new: true })
       .exec();
@@ -140,5 +141,12 @@ export class MatchService {
     if (!result) {
       throw new NotFoundException('ไม่สามารถลบการแข่งขันได้');
     }
+  }
+
+  async removeMatches(
+    petId: Types.ObjectId,
+    matchId: Types.ObjectId,
+  ): Promise<void> {
+    await this.matchModel.deleteMany({ _petId: petId, _id: { $ne: matchId } });
   }
 }
