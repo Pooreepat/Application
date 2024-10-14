@@ -24,8 +24,43 @@ export class ProfileService {
     return [profiles, total];
   }
 
-  public async getProfileById(id: Types.ObjectId): Promise<IProfile> {
-    return this.profileModel.findById(id).lean();
+  public async getProfileById(id: Types.ObjectId): Promise<any> {
+    const profile = await this.profileModel.aggregate([
+      {
+        $match: {
+          _id: id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'user',
+          localField: '_userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true, 
+        },
+      },
+      {
+        $addFields: {
+          email: '$user.email', 
+        },
+      },
+      {
+        $project: {
+          user: 0, 
+        },
+      },
+      {
+        $limit: 1, 
+      },
+    ]);
+
+    return profile[0];
   }
 
   public async getProfileByUserId(

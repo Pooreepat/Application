@@ -64,7 +64,12 @@ export class UserService {
     return this.userModel.create(data);
   }
 
-
+  public async updateUser(
+    userId: string | Types.ObjectId,
+    data: Partial<UserDocument>,
+  ): Promise<UserDocument> {
+    return this.userModel.findByIdAndUpdate(userId, data, { new: true });
+  }
 
   // public async updateUserByAction(
   //   userId: string,

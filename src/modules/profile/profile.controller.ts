@@ -62,15 +62,15 @@ export class ProfileController {
     });
   }
 
-  // @Put(':id')
-  // public async updateProfile(
-  //   @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-  //   @Param('id') id: string,
-  //   @Body() data: UpdateProfileDto,
-  // ): Promise<any> {
-  //   return this.updateProfileUsecase.execute({
-  //     ...data,
-  //     id,
-  //   });
-  // }
+  @Put(':id')
+  public async updateProfile(
+    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+    @Param('id') id: string,
+    @Body() data: UpdateProfileDto,
+  ): Promise<any> {
+    return this.updateProfileUsecase.execute({
+      ...data,
+      id,
+    });
+  }
 }

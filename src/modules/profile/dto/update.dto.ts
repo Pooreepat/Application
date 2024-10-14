@@ -128,4 +128,15 @@ export default class UpdateProfileDto {
     message: 'รูปแบบการดำเนินชีวิตต้องเป็นตัวอักษร',
   })
   lifestyle?: string;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+    description: 'อีเมล',
+  })
+  @IsOptional()
+  @IsString({
+    message: 'อีเมลต้องเป็นตัวอักษร',
+  })
+  email?: string;
 }
