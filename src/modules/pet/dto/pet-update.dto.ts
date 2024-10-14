@@ -9,7 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Gender, Species, Theme } from '../pet.constant';
+import { Gender, Species } from '../pet.constant';
 import { LocationDto } from 'src/dto/location.dto';
 import { Type } from 'class-transformer';
 
@@ -110,13 +110,12 @@ export default class PetUpdateDto {
 
   @ApiProperty({
     description: 'Theme for the Pet Profile',
-    enum: Theme,
-    example: Theme.BLUE,
+    example: 'Light',
   })
   @IsOptional()
-  @IsEnum(Theme)
-  theme?: Theme;
-
+  @IsString()
+  theme?: string;
+  
   @ApiProperty({
     description: 'Indicates if the Pet is alive',
     example: true,

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Gender, Species, Status, Theme } from './pet.constant';
+import { Gender, Species, Status } from './pet.constant';
 import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type PetDocument = Pet & Document;
@@ -59,8 +59,8 @@ export class Pet {
   @Prop({ type: [String], required: true })
   vaccinationHistory: string[];
 
-  @Prop({ type: String, enum: Theme })
-  theme: Theme;
+  @Prop({ type: String })
+  theme: string;
 
   @Prop({ type: Boolean, default: true })
   isAlive: boolean;

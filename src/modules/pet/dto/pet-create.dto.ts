@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { Gender, Species, Status, Theme } from '../pet.constant';
+import { Gender, Species, Status } from '../pet.constant';
 import { LocationDto } from 'src/dto/location.dto';
 import { Type } from 'class-transformer';
 
@@ -111,12 +111,11 @@ export class PetCreateDto {
 
   @ApiProperty({
     description: 'Theme for the Pet Profile',
-    enum: Theme,
-    example: Theme.BLUE,
+    example: 'Light',
   })
   @IsOptional()
-  @IsEnum(Theme)
-  theme?: Theme;
+  @IsString()
+  theme?: string;
 
   @ApiProperty({
     description: 'Additional Notes for the Pet',

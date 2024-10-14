@@ -10,17 +10,6 @@ export enum Species {
   BOTH = 'both',
 }
 
-export enum Theme {
-  BLACK = 'black',
-  BROWN = 'brown',
-  GRAY = 'gray',
-  GREEN = 'green',
-  ORANGE = 'orange',
-  PINK = 'pink',
-  RED = 'red',
-  BLUE = 'blue',
-}
-
 export enum Status {
   STRAY = 'stray',
   PENDING = 'pending',
