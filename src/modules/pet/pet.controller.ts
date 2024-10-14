@@ -38,12 +38,12 @@ export class PetController {
     private readonly searchPetUsecase: SearchPetUsecase,
   ) {}
 
-  @Get('search')
+  @Post('search')
   public async searchPet(
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Query() query: PetSearchDto,
+    @Body() data: PetSearchDto,
   ): Promise<any> {
-    return this.searchPetUsecase.execute({ ...query, profile: user.profile });
+    return this.searchPetUsecase.execute({ ...data, profile: user.profile });
   }
 
   @Post()

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString, IsOptional, Max, Min } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
+import { IPreference } from 'src/modules/preference/preference.interface';
 
 export default class PetSearchDto {
   @ApiProperty({
@@ -8,9 +9,12 @@ export default class PetSearchDto {
     description: 'ละติจูด',
   })
   @IsOptional()
-  @IsString({
-    message: 'ละติจูดต้องเป็นตัวเลข',
-  })
+  @IsNumber(
+    {},
+    {
+      message: 'ละติจูดต้องเป็นตัวเลข',
+    },
+  )
   latitude: number;
 
   @ApiProperty({
@@ -19,9 +23,12 @@ export default class PetSearchDto {
     description: 'ลองจิจูด',
   })
   @IsOptional()
-  @IsString({
-    message: 'ลองจิจูดต้องเป็นตัวเลข',
-  })
+  @IsNumber(
+    {},
+    {
+      message: 'ลองจิจูดต้องเป็นตัวเลข',
+    },
+  )
   longitude: number;
 
   @ApiProperty({
@@ -30,52 +37,18 @@ export default class PetSearchDto {
     description: 'ระยะห่างสูงสุด',
   })
   @IsOptional()
-  @IsString({
-    message: 'ระยะห่างสูงสุดต้องเป็นตัวเลข',
-  })
+  @IsNumber(
+    {},
+    {
+      message: 'ระยะห่างสูงสุดต้องเป็นตัวเลข',
+    },
+  )
   maxDistance: number;
 
   @ApiProperty({
     required: false,
-    enum: ['male', 'female', 'both'],
-    description: 'สนใจเพศใด',
+    description: 'ความชอบ',
   })
   @IsOptional()
-  @IsEnum(['male', 'female', 'both'], {
-    message: 'ค่าเพศที่สนใจต้องเป็น "male", "female" หรือ "both"',
-  })
-  gender: string;
-
-  @ApiProperty({
-    required: false,
-    enum: ['dog', 'cat', 'both'],
-    description: 'สนใจเพศใด',
-  })
-  @IsOptional()
-  @IsEnum(['dog', 'cat', 'both'], {
-    message: 'ค่าเพศที่สนใจต้องเป็น "dog", "cat" หรือ "both"',
-  })
-  specie: string;
-
-  @ApiProperty({
-    required: false,
-    type: Number,
-    description: 'อายุขั้นต่ำ',
-  })
-  @IsOptional()
-  @IsString({
-    message: 'อายุขั้นต่ำต้องเป็นตัวเลข',
-  })
-  minAge: number;
-
-  @ApiProperty({
-    required: false,
-    type: Number,
-    description: 'อายุสูงสุด',
-  })
-  @IsOptional()
-  @IsString({
-    message: 'อายุสูงสุดต้องเป็นตัวเลข',
-  })
-  maxAge: number;
+  preferences: IPreference[];
 }

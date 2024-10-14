@@ -6,6 +6,7 @@ import { SwipeService } from 'src/modules/swipes/swipes.service';
 import PetSearchDto from '../dto/pet-search.dto';
 import { IUser } from 'src/modules/user/user.interface';
 import { IProfile } from 'src/modules/profile/profile.interface';
+import { calculateSimilarity } from 'src/common/utils/calculateSimilarity';
 
 @Injectable()
 export class SearchPetUsecase {
@@ -18,17 +19,7 @@ export class SearchPetUsecase {
     data: PetSearchDto & { profile: IProfile },
   ): Promise<any> {
     try {
-      const {
-        latitude,
-        longitude,
-        maxDistance,
-        gender,
-        specie,
-        minAge,
-        maxAge,
-        profile,
-      } = data;
-
+      const { latitude, longitude, maxDistance, preferences, profile } = data;
       const swipedPets = await this.swipeService.getSwipedPetsByUser(
         profile._id,
       );
@@ -36,22 +27,32 @@ export class SearchPetUsecase {
 
       const nearbyPets = await this.petService.searchPets({
         location: {
-          latitude: Number(latitude),
-          longitude: Number(longitude),
+          latitude: Number(latitude) || undefined,
+          longitude: Number(longitude) || undefined,
         },
-        maxDistance: Number(maxDistance),
-        preferences: {
-          gender: gender,
-          species: specie,
-          ageRange: {
-            min: Number(minAge),
-            max: Number(maxAge),
-          },
-        },
+        maxDistance: Number(maxDistance) || undefined, 
         excludePetIds: swipedPetIds,
       });
 
-      return nearbyPets;
+      const petScores = nearbyPets.map((pet) => {
+        let maxScore = 0;
+
+        if (preferences) {
+          preferences.forEach((preference) => {
+            const score = calculateSimilarity(pet, preference);
+            if (score > maxScore) {
+              maxScore = score;
+            }
+          });
+        }
+
+        return { ...pet, similarityScore: maxScore };
+      });
+
+      const sortedPets = petScores.sort(
+        (a, b) => b.similarityScore - a.similarityScore,
+      );
+      return sortedPets;
     } catch (e) {
       throw new HttpException(e.message, 500);
     }

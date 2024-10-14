@@ -1,9 +1,21 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
-import { Gender } from "src/modules/pet/pet.constant";
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
+import { Gender } from 'src/modules/pet/pet.constant';
 
 export class PreferenceCreateDto {
-  @ApiProperty({ example: '60b8d295f06020000808b0e0', description: 'รหัสโปรไฟล์' })
+  @ApiProperty({
+    example: '60b8d295f06020000808b0e0',
+    description: 'รหัสโปรไฟล์',
+  })
   @IsNotEmpty({ message: 'รหัสโปรไฟล์ห้ามว่าง' })
   _profileId: string;
 
@@ -37,4 +49,12 @@ export class PreferenceCreateDto {
   @ApiProperty({ example: ['2020-01-01'], description: 'วันเกิด' })
   @IsArray({ message: 'วันเกิดต้องเป็นอาร์เรย์' })
   birthdayAt: Date[];
+
+  @ApiProperty({ example: ['2020-01-01'], description: 'ประวัติการฉีดวัคซีน' })
+  @IsArray({ message: 'ประวัติการฉีดวัคซีนต้องเป็นอาร์เรย์' })
+  vaccinationHistory: string[];
+
+  @ApiProperty({ example: true, description: 'ทำหมันแล้วหรือยัง' })
+  @IsBoolean({ message: 'ทำหมันแล้วหรือยังต้องเป็นบูลีน' })
+  isSpayedOrNeutered: boolean;
 }

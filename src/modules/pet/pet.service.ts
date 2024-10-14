@@ -93,75 +93,42 @@ export class PetService {
   async searchPets({
     location,
     maxDistance,
-    preferences,
     excludePetIds,
   }: {
     location: { latitude: number; longitude: number };
     maxDistance: number;
-    preferences: {
-      species: string;
-      ageRange: { min: number; max: number };
-      gender: string;
-    };
     excludePetIds: Types.ObjectId[];
   }) {
-    const currentDate = new Date();
-    const minDate = new Date(
-      currentDate.getFullYear() - preferences.ageRange.max,
-      currentDate.getMonth(),
-      currentDate.getDate(),
-    );
-    const maxDate = new Date(
-      currentDate.getFullYear() - preferences.ageRange.min,
-      currentDate.getMonth(),
-      currentDate.getDate(),
-    );
     const query: any = {
       _id: { $nin: excludePetIds },
       status: Status.STRAY,
     };
 
-    if (preferences.species !== 'both') {
-      query.species = preferences.species;
-    }
-
-    if (preferences.ageRange.min && preferences.ageRange.max) {
-      query.birthdayAt = { $gte: minDate, $lte: maxDate };
-    }
-
-    if (location.latitude && location.longitude) {
-      query.location = {
-        $near: {
-          $geometry: {
+    return this.petModel.aggregate([
+      {
+        $geoNear: {
+          near: {
             type: 'Point',
             coordinates: [location.longitude, location.latitude],
           },
-          $maxDistance: maxDistance * 1000,
+          distanceField: 'distance',
+          maxDistance: maxDistance * 1000,
+          spherical: true,
         },
-      };
-    }
-
-    if (preferences.gender !== 'both') {
-      query.gender = preferences.gender;
-    }
-
-    // return this.petModel.find(query).exec();
-    return this.petModel
-      .aggregate([
-        { $match: query },
-        { $sort: { createdAt: -1 } },
-        // { $skip: skip },
-        // { $limit: perPage },
-        {
-          $lookup: {
-            from: 'profiles',
-            localField: '_profileId',
-            foreignField: '_id',
-            as: 'profile',
-          },
+      },
+      {
+        $match: query,
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profileId',
+          foreignField: '_id',
+          as: 'profile',
         },
-        { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } },
-      ])
-      .exec();
+      },
+      { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } },
+    ]);
   }
 }

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Gender } from 'src/modules/pet/pet.constant';
+import { Gender, Species } from 'src/modules/pet/pet.constant';
 
 export type PreferenceDocument = Preference & Document;
 
@@ -9,26 +9,32 @@ export class Preference {
   @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
   _profileId: Types.ObjectId;
 
-  @Prop({ required: true })
-  species: string;
+  @Prop({ type: String, enum: Species, required: true })
+  species: Species;
+
+  @Prop({ type: String, required: true })
+  size: string;
+
+  @Prop({ type: Boolean, default: false })
+  isSpayedOrNeutered: boolean;
 
   @Prop({ required: true })
   breed: string;
 
-  @Prop({ required: true })
-  size: string;
-
-  @Prop([String])
+  @Prop({ type: [String], required: true })
   generalHealth: string[];
 
-  @Prop([String])
+  @Prop({ type: [String], required: true })
   tags: string[];
 
   @Prop({ type: String, enum: Gender })
   gender: Gender;
 
-  @Prop([Date])
-  birthdayAt: Date[];
+  @Prop({ type: [String], required: true })
+  vaccinationHistory: string[];
+
+  @Prop({ type: Date, required: true })
+  birthdayAt: Date;
 }
 
 export const PreferenceSchema = SchemaFactory.createForClass(Preference);
