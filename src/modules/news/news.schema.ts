@@ -10,6 +10,9 @@ export class News extends Document {
   @Prop({ required: true })
   content: string;
 
+  @Prop([String])
+  images: string[];
+
   @Prop({ type: String, enum: ENewsType, required: true })
   type: ENewsType;
 }
