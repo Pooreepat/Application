@@ -94,10 +94,41 @@ export class TransactionService {
   }
 
   async getTransactionById(id: Types.ObjectId): Promise<ITransaction> {
-    const transaction = await this.transactionModel.findById(id).exec();
-    if (!transaction) {
-      throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
-    }
-    return transaction;
+    const transactions = await this.transactionModel.aggregate([
+      {
+        $match: {
+          _id: id,
+        },
+      },
+      { $limit: 1 },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile1Id',
+          foreignField: '_id',
+          as: 'profile1',
+        },
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profile2Id',
+          foreignField: '_id',
+          as: 'profile2',
+        },
+      },
+      {
+        $lookup: {
+          from: 'pets',
+          localField: '_petId',
+          foreignField: '_id',
+          as: 'pet',
+        },
+      },
+      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+    ]);
+    return transactions[0];
   }
 }
