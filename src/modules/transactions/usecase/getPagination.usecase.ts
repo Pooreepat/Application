@@ -4,6 +4,8 @@ import { HttpResponsePagination } from 'src/interface/respones';
 import GetProfilePaginationDto from '../dto/getPagination.dto';
 import { IProfile } from 'src/modules/profile/profile.interface';
 import { TransactionService } from '../transactions.service';
+import { IUser } from 'src/modules/user/user.interface';
+import { EUserRole } from 'src/modules/user/user.constant';
 
 @Injectable()
 export class GetTransactionsPaginationUsecase {
@@ -14,14 +16,14 @@ export class GetTransactionsPaginationUsecase {
 
   public async execute(
     data: GetProfilePaginationDto,
-    profile: IProfile,
+    user: IUser & { profile: IProfile },
   ): Promise<HttpResponsePagination> {
     try {
       const page = Number(data.page) || 1;
       const perPage = Number(data.perPage) || 10;
 
       const query: any = {
-        $or: [{ _profile1Id: profile._id }, { _profile2Id: profile._id }],
+        $or: !user.role.includes(EUserRole.ADMIN)  && [{ _profile1Id: user.profile._id }, { _profile2Id: user.profile._id }],
       };
 
       const skip = (page - 1) * perPage;

@@ -29,7 +29,7 @@ export class TransactionController {
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
     @Query() query: GetTransactionsPaginationDto,
   ): Promise<any> {
-    return this.getTransactionsPaginationUsecase.execute(query, user.profile);
+    return this.getTransactionsPaginationUsecase.execute(query, user);
   }
 
   @Get(':id')
