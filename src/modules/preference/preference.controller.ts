@@ -9,23 +9,42 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PreferenceService } from './preference.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { PreferenceCreateDto } from './dto/preference-create.dto';
 import { PreferenceUpdateDto } from './dto/preference-update.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PreferenceCreateUsecase } from './usecase/create.usecase';
+import { User } from '../user/user.decorator';
+import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
+import { IUser } from '../user/user.interface';
+import { IProfile } from '../profile/profile.interface';
 
 @ApiTags('Preferences')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('preferences')
 export class PreferenceController {
-  constructor(private readonly preferenceService: PreferenceService) {}
+  constructor(
+    private readonly preferenceService: PreferenceService,
+    private readonly preferenceCreateUsecase: PreferenceCreateUsecase,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'สร้างการตั้งค่าใหม่' })
   @ApiResponse({ status: 201, description: 'การตั้งค่าถูกสร้างแล้ว' })
-  create(@Body() createPreferenceDto: PreferenceCreateDto) {
-    return this.preferenceService.create(createPreferenceDto);
+  create(
+    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+    @Body() createPreferenceDto: PreferenceCreateDto,
+  ) {
+    return this.preferenceCreateUsecase.execute({
+      ...createPreferenceDto,
+      id: user.profile._id,
+    });
   }
 
   @Get()

@@ -34,7 +34,10 @@ export class Preference {
   vaccinationHistory: string[];
 
   @Prop({ type: Date, required: true })
-  birthdayAt: Date;
+  minBirthdayAt: Date;
+
+  @Prop({ type: Date, required: true })
+  maxBirthdayAt: Date;
 }
 
 export const PreferenceSchema = SchemaFactory.createForClass(Preference);

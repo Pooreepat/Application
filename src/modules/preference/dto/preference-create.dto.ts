@@ -4,12 +4,10 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsString,
-  Max,
-  Min,
+  IsDate,
 } from 'class-validator';
-import { Gender } from 'src/modules/pet/pet.constant';
+import { Gender, Species } from 'src/modules/pet/pet.constant';
 
 export class PreferenceCreateDto {
   @ApiProperty({
@@ -22,7 +20,7 @@ export class PreferenceCreateDto {
   @ApiProperty({ example: 'Dog', description: 'ชนิดสัตว์' })
   @IsNotEmpty({ message: 'ชนิดสัตว์ห้ามว่าง' })
   @IsString({ message: 'ชนิดสัตว์ต้องเป็นสตริง' })
-  species: string;
+  species: Species;
 
   @ApiProperty({ example: 'Labrador', description: 'สายพันธุ์' })
   @IsNotEmpty({ message: 'สายพันธุ์ห้ามว่าง' })
@@ -46,9 +44,15 @@ export class PreferenceCreateDto {
   @IsEnum(Gender, { message: 'เพศไม่ถูกต้อง' })
   gender: Gender;
 
-  @ApiProperty({ example: ['2020-01-01'], description: 'วันเกิด' })
-  @IsArray({ message: 'วันเกิดต้องเป็นอาร์เรย์' })
-  birthdayAt: Date[];
+  @ApiProperty({ example: '2020-01-01', description: 'วันเกิดต่ำสุด' })
+  @IsNotEmpty({ message: 'วันเกิดต่ำสุดห้ามว่าง' })
+  @IsDate({ message: 'วันเกิดต่ำสุดต้องเป็นวันที่' })
+  minBirthdayAt: Date;
+
+  @ApiProperty({ example: '2022-01-01', description: 'วันเกิดสูงสุด' })
+  @IsNotEmpty({ message: 'วันเกิดสูงสุดห้ามว่าง' })
+  @IsDate({ message: 'วันเกิดสูงสุดต้องเป็นวันที่' })
+  maxBirthdayAt: Date;
 
   @ApiProperty({ example: ['2020-01-01'], description: 'ประวัติการฉีดวัคซีน' })
   @IsArray({ message: 'ประวัติการฉีดวัคซีนต้องเป็นอาร์เรย์' })

@@ -8,10 +8,13 @@ import { PreferenceUpdateDto } from './dto/preference-update.dto';
 @Injectable()
 export class PreferenceService {
   constructor(
-    @InjectModel(Preference.name) private preferenceModel: Model<PreferenceDocument>,
+    @InjectModel(Preference.name)
+    private preferenceModel: Model<PreferenceDocument>,
   ) {}
 
-  async create(createPreferenceDto: PreferenceCreateDto): Promise<Preference> {
+  async createPreference(
+    createPreferenceDto: Partial<PreferenceDocument>,
+  ): Promise<Preference> {
     const createdPreference = new this.preferenceModel(createPreferenceDto);
     return createdPreference.save();
   }
@@ -28,8 +31,13 @@ export class PreferenceService {
     return preference;
   }
 
-  async update(id: string, updatePreferenceDto: PreferenceUpdateDto): Promise<Preference> {
-    const preference = await this.preferenceModel.findByIdAndUpdate(id, updatePreferenceDto, { new: true }).exec();
+  async update(
+    id: string,
+    updatePreferenceDto: PreferenceUpdateDto,
+  ): Promise<Preference> {
+    const preference = await this.preferenceModel
+      .findByIdAndUpdate(id, updatePreferenceDto, { new: true })
+      .exec();
     if (!preference) {
       throw new NotFoundException(`การตั้งค่า ID ${id} ไม่พบ`);
     }
