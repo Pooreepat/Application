@@ -38,6 +38,8 @@ export class Preference {
 
   @Prop({ type: Date, required: true })
   maxBirthdayAt: Date;
+
+  _id?: Types.ObjectId;
 }
 
 export const PreferenceSchema = SchemaFactory.createForClass(Preference);

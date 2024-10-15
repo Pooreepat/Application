@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { PreferenceService } from './preference.service';
 import {
@@ -23,6 +24,9 @@ import { User } from '../user/user.decorator';
 import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
 import { IUser } from '../user/user.interface';
 import { IProfile } from '../profile/profile.interface';
+import { GetSelfPreferenceUsecase } from './usecase/getSelf.usecase';
+import { UpdatePreferenceUsecase } from './usecase/update.usecase';
+import { Types } from 'mongoose';
 
 @ApiTags('Preferences')
 @ApiBearerAuth()
@@ -32,6 +36,8 @@ export class PreferenceController {
   constructor(
     private readonly preferenceService: PreferenceService,
     private readonly preferenceCreateUsecase: PreferenceCreateUsecase,
+    private readonly getSelfPreferenceUsecase: GetSelfPreferenceUsecase,
+    private readonly updatePreferenceUsecase: UpdatePreferenceUsecase,
   ) {}
 
   @Post()
@@ -47,6 +53,12 @@ export class PreferenceController {
     });
   }
 
+  @Get("self")
+  @ApiOperation({ summary: 'ดึงข้อมูลการตั้งค่าของตัวเอง' })
+  findSelf(@User(ProfileTransformUserPipe) user: IUser & { profile: IProfile }) {
+    return this.getSelfPreferenceUsecase.execute(user);
+  }
+
   @Get()
   @ApiOperation({ summary: 'ดึงข้อมูลการตั้งค่าทั้งหมด' })
   findAll() {
@@ -59,13 +71,13 @@ export class PreferenceController {
     return this.preferenceService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: 'อัปเดตการตั้งค่าตาม ID' })
   update(
-    @Param('id') id: string,
+    @Param('id') id: Types.ObjectId,
     @Body() updatePreferenceDto: PreferenceUpdateDto,
   ) {
-    return this.preferenceService.update(id, updatePreferenceDto);
+    return this.updatePreferenceUsecase.execute({ id, ...updatePreferenceDto });
   }
 
   @Delete(':id')

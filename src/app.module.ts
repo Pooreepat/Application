@@ -9,6 +9,7 @@ import { PetModule } from './modules/pet/pet.module';
 import { MessageModule } from './modules/messages/messages.module';
 import { NewsModule } from './modules/news/news.module';
 import { TransactionModule } from './modules/transactions/transactions.module';
+import { PreferenceModule } from './modules/preference/preference.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TransactionModule } from './modules/transactions/transactions.module';
     MessageModule,
     NewsModule,
     TransactionModule,
+    PreferenceModule
   ],
 })
 export class AppModule {}
