@@ -6,6 +6,7 @@ import { HttpRespons } from 'src/interface/respones';
 import { ProfileService } from 'src/modules/profile/profile.service';
 import { IUser } from '../user.interface';
 import { EUserRole } from '../user.constant';
+import UserCreateDto from '../dto/user-create.dto';
 
 @Injectable()
 export class CreateUserUsecase {
@@ -16,7 +17,7 @@ export class CreateUserUsecase {
   ) {}
 
   public async execute(
-    data: UserRegisterDto,
+    data: UserCreateDto,
     user: IUser,
   ): Promise<HttpRespons> {
     try {
@@ -34,6 +35,7 @@ export class CreateUserUsecase {
         phone: data.phone,
         firstname: data.firstName,
         lastname: data.lastName,
+        images: data.images,
         birthdayAt: new Date(data.birthDate),
       });
 

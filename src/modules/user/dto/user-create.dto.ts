@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export default class UserCreateDto {
   @ApiProperty()
@@ -44,4 +44,14 @@ export default class UserCreateDto {
     message: 'กรุณากรอกวันเกิด',
   })
   birthDate: string;
+
+  @ApiProperty({
+    description: 'Images of the Pet',
+    type: [String],
+    example: ['image1.jpg', 'image2.jpg'],
+  })
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
 }

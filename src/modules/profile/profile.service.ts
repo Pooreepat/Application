@@ -99,7 +99,7 @@ export class ProfileService {
     return this.profileModel.findOne({ _userId: userId }).lean();
   }
 
-  public async createProfile(data: IProfileCreate): Promise<ProfileDocument> {
+  public async createProfile(data: Partial<ProfileDocument>): Promise<ProfileDocument> {
     return this.profileModel.create(data);
   }
 
