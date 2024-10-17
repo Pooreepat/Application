@@ -91,10 +91,12 @@ export class PetService {
   }
 
   async searchPets({
+    queryData,
     location,
     maxDistance,
     excludePetIds,
   }: {
+    queryData: any;
     location: { latitude: number; longitude: number };
     maxDistance: number;
     excludePetIds: Types.ObjectId[];
@@ -102,6 +104,7 @@ export class PetService {
     const query: any = {
       _id: { $nin: excludePetIds },
       status: Status.STRAY,
+      ...queryData,
     };
 
     return this.petModel.aggregate([

@@ -19,21 +19,26 @@ export class SearchPetUsecase {
     data: PetSearchDto & { profile: IProfile },
   ): Promise<any> {
     try {
-      const { latitude, longitude, maxDistance, preferences, profile } = data;
+      const { latitude, longitude, maxDistance, preferences, profile, search } =
+        data;
       const swipedPets = await this.swipeService.getSwipedPetsByUser(
         profile._id,
       );
       const swipedPetIds = swipedPets.map((swipe) => swipe._swipedPetId);
-
+      const queryData = {};
+      if (search) {
+        queryData['nickname'] = { $regex: search, $options: 'i' };
+      }
       const nearbyPets = await this.petService.searchPets({
+        queryData,
         location: {
           latitude: Number(latitude) || undefined,
           longitude: Number(longitude) || undefined,
         },
-        maxDistance: Number(maxDistance) || undefined, 
+        maxDistance: Number(maxDistance) || undefined,
         excludePetIds: swipedPetIds,
       });
-
+      
       const petScores = nearbyPets.map((pet) => {
         let maxScore = 0;
 

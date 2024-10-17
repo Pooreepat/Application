@@ -51,4 +51,12 @@ export default class PetSearchDto {
   })
   @IsOptional()
   preferences: IPreference[];
+
+  @ApiProperty({
+    required: false,
+    description: 'คำค้นหา',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
