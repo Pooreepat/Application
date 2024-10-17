@@ -10,6 +10,7 @@ import { MessageModule } from './modules/messages/messages.module';
 import { NewsModule } from './modules/news/news.module';
 import { TransactionModule } from './modules/transactions/transactions.module';
 import { PreferenceModule } from './modules/preference/preference.module';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { PreferenceModule } from './modules/preference/preference.module';
     MessageModule,
     NewsModule,
     TransactionModule,
-    PreferenceModule
+    PreferenceModule,
+    PostsModule
   ],
 })
 export class AppModule {}
