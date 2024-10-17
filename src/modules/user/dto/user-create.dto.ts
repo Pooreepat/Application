@@ -54,4 +54,11 @@ export default class UserCreateDto {
   @IsArray()
   @IsString({ each: true })
   images: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty({
+    message: 'กรุณากรอกเลขบัตรประชาชน',
+  })
+  identityCard: string;
 }

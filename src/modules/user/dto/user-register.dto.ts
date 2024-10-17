@@ -44,4 +44,11 @@ export default class UserRegisterDto {
     message: 'กรุณากรอกวันเกิด',
   })
   birthDate: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty({
+    message: 'กรุณากรอกเลขบัตรประชาชน',
+  })
+  identityCard: string;
 }

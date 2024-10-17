@@ -37,6 +37,7 @@ export class CreateUserUsecase {
         lastname: data.lastName,
         images: data.images,
         birthdayAt: new Date(data.birthDate),
+        identityCard: data.identityCard,
       });
 
       if (!profile) {

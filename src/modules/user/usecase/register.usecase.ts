@@ -27,6 +27,7 @@ export class RegisterUsecase {
         firstname: data.firstName,
         lastname: data.lastName,
         birthdayAt: new Date(data.birthDate),
+        identityCard: data.identityCard,
       });
 
       if (!profile) {

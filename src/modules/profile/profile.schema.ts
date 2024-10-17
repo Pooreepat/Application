@@ -52,6 +52,9 @@ export class Profile {
   @Prop({ type: Date })
   lastLogin: Date;
 
+  @Prop({ type: String })
+  identityCard: string;
+
   _id?: Types.ObjectId;
 }
 
