@@ -44,7 +44,7 @@ export class PostsService {
     return this.postModel.create(data);
   }
 
-  public async getPostById(id: string): Promise<PostDocument> {
+  public async getPostById(id: Types.ObjectId): Promise<PostDocument> {
     return this.postModel.findById(id).lean();
   }
 
