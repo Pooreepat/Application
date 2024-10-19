@@ -110,14 +110,12 @@ export class PostsController {
     });
   }
 
-  @Put(':status/:id')
+  @Put('archive/:id')
   public async updateStatus(
     @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Param('status') status: EStatusPosts,
     @Param('id') id: Types.ObjectId,
   ): Promise<any> {
     return this.updateStatusPostsUsecase.execute({
-      status,
       id,
       _profileId: user.profile._id,
     });

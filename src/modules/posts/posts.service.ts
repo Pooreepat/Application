@@ -59,6 +59,9 @@ export class PostsService {
           comments: { $push: '$comments' },
         },
       },
+      {
+        $sort: { createdAt: -1 },
+      }
     ];
 
     const posts = await this.postModel.aggregate(pipeline).exec();

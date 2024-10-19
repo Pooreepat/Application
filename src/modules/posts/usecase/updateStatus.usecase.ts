@@ -10,7 +10,6 @@ export class UpdateStatusPostsUsecase {
   constructor(private readonly postService: PostsService) {}
 
   public async execute(data: {
-    status: EStatusPosts;
     id: Types.ObjectId;
     _profileId: Types.ObjectId;
   }): Promise<HttpRespons> {
@@ -19,7 +18,6 @@ export class UpdateStatusPostsUsecase {
         new Types.ObjectId(data.id),
         {
           $set: {
-            status: data.status,
             _receiverId: new Types.ObjectId(data._profileId),
           },
         },
