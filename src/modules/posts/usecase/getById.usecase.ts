@@ -16,7 +16,6 @@ export class GetByIdUsecase {
       if (!post) {
         throw new HttpException('Cannot get post', 500);
       }
-      console.log(post);
       return post;
     } catch (e) {
       throw new HttpException(e.message, 500);
