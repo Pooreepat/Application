@@ -10,9 +10,6 @@ export class PostsService {
   public async getPagination(filterQuery: any, skip: number, perPage: number) {
     const pipeline: any[] = [
       { $match: filterQuery },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: perPage },
       {
         $lookup: {
           from: 'profiles',
@@ -31,6 +28,37 @@ export class PostsService {
       },
       { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } },
       { $unwind: { path: '$receiver', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$comments', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: 'comments._profileId',
+          foreignField: '_id',
+          as: 'comments.profile',
+        },
+      },
+      {
+        $unwind: {
+          path: '$comments.profile',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          content: { $first: '$content' },
+          profile: { $first: '$profile' },
+          receiver: { $first: '$receiver' },
+          images: { $first: '$images' },
+          likes: { $first: '$likes' },
+          isHidden: { $first: '$isHidden' },
+          tags: { $first: '$tags' },
+          location: { $first: '$location' },
+          status: { $first: '$status' },
+          createdAt: { $first: '$createdAt' },
+          comments: { $push: '$comments' },
+        },
+      },
     ];
 
     const posts = await this.postModel.aggregate(pipeline).exec();
@@ -45,7 +73,60 @@ export class PostsService {
   }
 
   public async getPostById(id: Types.ObjectId): Promise<PostDocument> {
-    return this.postModel.findById(id).lean();
+    const post = await this.postModel.aggregate([
+      { $match: { _id: id } },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_profileId',
+          foreignField: '_id',
+          as: 'profile',
+        },
+      },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: '_receiverId',
+          foreignField: '_id',
+          as: 'receiver',
+        },
+      },
+      { $unwind: { path: '$profile', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$receiver', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$comments', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'profiles',
+          localField: 'comments._profileId',
+          foreignField: '_id',
+          as: 'comments.profile',
+        },
+      },
+      {
+        $unwind: {
+          path: '$comments.profile',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          content: { $first: '$content' },
+          profile: { $first: '$profile' },
+          receiver: { $first: '$receiver' },
+          images: { $first: '$images' },
+          likes: { $first: '$likes' },
+          isHidden: { $first: '$isHidden' },
+          tags: { $first: '$tags' },
+          location: { $first: '$location' },
+          status: { $first: '$status' },
+          createdAt: { $first: '$createdAt' },
+          comments: { $push: '$comments' },
+        },
+      },
+      { $limit: 1 },
+    ]);
+    return post[0];
   }
 
   public async getPosts(): Promise<PostDocument[]> {

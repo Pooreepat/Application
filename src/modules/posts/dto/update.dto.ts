@@ -69,8 +69,7 @@ export default class UpdatePostsDto {
   })
   @IsOptional()
   @IsEnum(EStatusPosts, {
-    message:
-      'ค่าสถานะโพสต์ต้องเป็น seen_nearby, help_needed, trapped, rescued เท่านั้น',
+    message: 'ค่าสถานะโพสต์ต้องเป็น seen_nearby, help_needed เท่านั้น',
   })
   status: EStatusPosts;
 }

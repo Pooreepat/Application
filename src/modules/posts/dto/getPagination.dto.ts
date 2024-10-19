@@ -33,7 +33,7 @@ export default class GetPostsPaginationDto {
   @IsOptional()
   @IsEnum(EStatusPosts, {
     message:
-      'ค่าสถานะโพสต์ต้องเป็น seen_nearby, help_needed, trapped, rescued เท่านั้น',
+      'ค่าสถานะโพสต์ต้องเป็น seen_nearby, help_needed เท่านั้น',
   })
   status: EStatusPosts;
 }

@@ -11,6 +11,7 @@ import { UpdatePostsUsecase } from './usecase/update.usecase';
 import { LikePostsUsecase } from './usecase/like.usecase';
 import { LikeCommentPostsUsecase } from './usecase/likeComment.usecase';
 import { UpdateStatusPostsUsecase } from './usecase/updateStatus.usecase';
+import { GetByIdUsecase } from './usecase/getById.usecase';
 
 const usecases = [
   CreatePostsUsecase,
@@ -19,7 +20,8 @@ const usecases = [
   UpdatePostsUsecase,
   LikePostsUsecase,
   LikeCommentPostsUsecase,
-  UpdateStatusPostsUsecase
+  UpdateStatusPostsUsecase,
+  GetByIdUsecase
 ];
 
 @Module({

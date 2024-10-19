@@ -26,6 +26,7 @@ import { Types } from 'mongoose';
 import { CommentPostsDto } from './dto/comment.dto';
 import { UpdateStatusPostsUsecase } from './usecase/updateStatus.usecase';
 import { EStatusPosts } from './posts.constant';
+import { GetByIdUsecase } from './usecase/getById.usecase';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
@@ -40,6 +41,7 @@ export class PostsController {
     private readonly likePostsUsecase: LikePostsUsecase,
     private readonly likeCommentPostsUsecase: LikeCommentPostsUsecase,
     private readonly updateStatusPostsUsecase: UpdateStatusPostsUsecase,
+    private readonly getByIdUsecase: GetByIdUsecase,
   ) {}
 
   @Post()
@@ -118,6 +120,13 @@ export class PostsController {
       status,
       id,
       _profileId: user.profile._id,
+    });
+  }
+
+  @Get(':id')
+  public async getPost(@Param('id') id: Types.ObjectId): Promise<any> {
+    return this.getByIdUsecase.execute({
+      id,
     });
   }
 }
