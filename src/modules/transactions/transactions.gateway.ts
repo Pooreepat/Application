@@ -109,6 +109,11 @@ export class TransactionGateway
     roomUsers.add({ profileId: profile._id.toString(), name: profile.name });
 
     this.server.to(roomId).emit('userListUpdated', Array.from(roomUsers));
+
+    const confirmations = this.roomConfirmations.get(roomId);
+    this.server
+      .to(roomId)
+      .emit('confirmedTransactionUser', Array.from(confirmations));
   }
 
   @SubscribeMessage('confirmTransaction')
