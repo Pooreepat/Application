@@ -16,7 +16,7 @@ export class Profile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   _userId: Types.ObjectId;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, unique: true })
   phone: string;
 
   @Prop({ type: [String], required: true })
@@ -52,7 +52,7 @@ export class Profile {
   @Prop({ type: Date })
   lastLogin: Date;
 
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true })
   identityCard: string;
 
   _id?: Types.ObjectId;
