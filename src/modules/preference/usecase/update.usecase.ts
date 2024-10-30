@@ -4,6 +4,7 @@ import { PreferenceService } from '../preference.service';
 import { PreferenceCreateDto } from '../dto/preference-create.dto';
 import { Types } from 'mongoose';
 import { HttpRespons } from 'src/interface/respones';
+import { PreferenceUpdateDto } from '../dto/preference-update.dto';
 
 @Injectable()
 export class UpdatePreferenceUsecase {
@@ -13,7 +14,7 @@ export class UpdatePreferenceUsecase {
   ) {}
 
   public async execute(
-    data: PreferenceCreateDto & { id: Types.ObjectId },
+    data: PreferenceUpdateDto & { id: Types.ObjectId },
   ): Promise<HttpRespons> {
     try {
       const preference = await this.preferenceService.update(

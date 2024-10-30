@@ -5,18 +5,11 @@ import {
   IsEnum,
   IsNotEmpty,
   IsString,
-  IsDate,
+  IsDateString,
 } from 'class-validator';
 import { Gender, Species } from 'src/modules/pet/pet.constant';
 
 export class PreferenceCreateDto {
-  @ApiProperty({
-    example: '60b8d295f06020000808b0e0',
-    description: 'รหัสโปรไฟล์',
-  })
-  @IsNotEmpty({ message: 'รหัสโปรไฟล์ห้ามว่าง' })
-  _profileId: string;
-
   @ApiProperty({ example: 'Dog', description: 'ชนิดสัตว์' })
   @IsNotEmpty({ message: 'ชนิดสัตว์ห้ามว่าง' })
   @IsString({ message: 'ชนิดสัตว์ต้องเป็นสตริง' })
@@ -44,14 +37,20 @@ export class PreferenceCreateDto {
   @IsEnum(Gender, { message: 'เพศไม่ถูกต้อง' })
   gender: Gender;
 
-  @ApiProperty({ example: '2020-01-01', description: 'วันเกิดต่ำสุด' })
-  @IsNotEmpty({ message: 'วันเกิดต่ำสุดห้ามว่าง' })
-  @IsDate({ message: 'วันเกิดต่ำสุดต้องเป็นวันที่' })
+  @ApiProperty({
+    description: 'Birthday of the Pet',
+    example: '2020-06-01T00:00:00.000Z',
+  })
+  @IsNotEmpty()
+  @IsDateString()
   minBirthdayAt: Date;
 
-  @ApiProperty({ example: '2022-01-01', description: 'วันเกิดสูงสุด' })
-  @IsNotEmpty({ message: 'วันเกิดสูงสุดห้ามว่าง' })
-  @IsDate({ message: 'วันเกิดสูงสุดต้องเป็นวันที่' })
+  @ApiProperty({
+    description: 'Birthday of the Pet',
+    example: '2020-06-01T00:00:00.000Z',
+  })
+  @IsNotEmpty()
+  @IsDateString()
   maxBirthdayAt: Date;
 
   @ApiProperty({ example: ['2020-01-01'], description: 'ประวัติการฉีดวัคซีน' })

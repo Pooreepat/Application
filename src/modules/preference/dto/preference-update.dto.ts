@@ -14,13 +14,6 @@ import {
 import { Gender, Species } from 'src/modules/pet/pet.constant';
 
 export class PreferenceUpdateDto {
-  @ApiProperty({
-    example: '60b8d295f06020000808b0e0',
-    description: 'รหัสโปรไฟล์',
-  })
-  @IsNotEmpty({ message: 'รหัสโปรไฟล์ห้ามว่าง' })
-  _profileId: string;
-
   @ApiProperty({ example: 'Dog', description: 'ชนิดสัตว์' })
   @IsNotEmpty({ message: 'ชนิดสัตว์ห้ามว่าง' })
   @IsString({ message: 'ชนิดสัตว์ต้องเป็นสตริง' })
