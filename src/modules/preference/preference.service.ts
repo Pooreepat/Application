@@ -20,8 +20,8 @@ export class PreferenceService {
     return createdPreference.save();
   }
 
-  async findByProfileId(profileId: Types.ObjectId): Promise<IPreference[]> {
-    return this.preferenceModel.find({ profileId }).lean();
+  async findByProfileId(_profileId: Types.ObjectId): Promise<IPreference[]> {
+    return this.preferenceModel.find({ _profileId }).lean();
   }
 
   async findAll(): Promise<Preference[]> {

@@ -14,7 +14,7 @@ export class NewsService {
   }
 
   async findAll(): Promise<News[]> {
-    return await this.newsModel.find().exec();
+    return this.newsModel.find().sort({ createdAt: -1 }).exec();
   }
 
   async findById(id: string): Promise<News> {
@@ -26,7 +26,9 @@ export class NewsService {
   }
 
   async updateNews(id: string, createNewsDto: CreateNewsDto): Promise<News> {
-    const updatedPost = await this.newsModel.findByIdAndUpdate(id, createNewsDto, { new: true }).exec();
+    const updatedPost = await this.newsModel
+      .findByIdAndUpdate(id, createNewsDto, { new: true })
+      .exec();
     if (!updatedPost) {
       throw new NotFoundException('News post not found');
     }

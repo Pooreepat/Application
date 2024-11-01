@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ENewsType } from './news.constant';
 
-@Schema()
+@Schema({ timestamps: true })
 export class News extends Document {
   @Prop({ required: true })
   title: string;
