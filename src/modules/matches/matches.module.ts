@@ -3,21 +3,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Match, MatchSchema } from './matches.schema';
 import { MatchService } from './matches.service';
 import { MatchController } from './matches.controller';
-import { UpdateStatusMatchUsecase } from './usecase/update-status.usecase';
-import { ProfileModule } from '../profile/profile.module';
-import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
-import { GetByIdMatchUsecase } from './usecase/getById.usecase';
+import { GetPaginationMatchUsecase } from './usecases/getPaginationMatch.usecase';
+import { GetMatchByIdUsecase } from './usecases/getMatchById.usecase';
 
 const usecases = [
-  UpdateStatusMatchUsecase,
-  GetMatchesPaginationUsecase,
-  GetByIdMatchUsecase,
+  GetPaginationMatchUsecase,
+  GetMatchByIdUsecase
 ];
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Match.name, schema: MatchSchema }]),
-    ProfileModule,
   ],
   controllers: [MatchController],
   providers: [MatchService, ...usecases],

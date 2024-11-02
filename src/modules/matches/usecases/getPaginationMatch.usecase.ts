@@ -1,0 +1,44 @@
+import { HttpException, Injectable } from '@nestjs/common';
+import { HttpResponsePagination } from 'src/interface/respones';
+import { IUser } from 'src/modules/user/interfaces/user.interface';
+import { MatchService } from '../matches.service';
+import { IMatch } from '../matches.interface';
+import GetMatchPaginationDto from '../dtos/getPaginationMatch.dto';
+
+@Injectable()
+export class GetPaginationMatchUsecase {
+  constructor(private readonly matchService: MatchService) {}
+
+  public async execute(
+    data: GetMatchPaginationDto,
+    user: IUser,
+  ): Promise<HttpResponsePagination<IMatch>> {
+    try {
+      const page = Number(data.page || 1);
+      const perPage = Number(data.perPage || 10);
+
+      const filter = {
+        $or: [{ _adopterId: user._id }, { _caretakerId: user._id }],
+      };
+
+      const [matches, total] = await this.matchService.getPagination(
+        filter,
+        page,
+        perPage,
+      );
+
+      if (!matches) {
+        throw new HttpException('Cannot get user', 500);
+      }
+
+      return {
+        data: matches,
+        total: total,
+        page: page,
+        perPage: perPage,
+      };
+    } catch (e) {
+      throw new HttpException(e.message, 500);
+    }
+  }
+}

@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Swipe, SwipeDocument } from './swipes.schema';
-import { SwipeCreateDto } from './dto/swipes-create.dto';
+import { ISwipe } from './swipes.interface';
+import { IPet } from '../pet/pet.interface';
+import { IUser } from '../user/interfaces/user.interface';
 
 @Injectable()
 export class SwipeService {
@@ -10,48 +12,96 @@ export class SwipeService {
     @InjectModel(Swipe.name) private swipeModel: Model<SwipeDocument>,
   ) {}
 
-  async create(createSwipeDto: SwipeCreateDto): Promise<Swipe> {
-    const createdSwipe = new this.swipeModel(createSwipeDto);
-    return createdSwipe.save();
-  }
-
-  async findByFilter(filter: Partial<SwipeDocument>): Promise<Swipe> {
-    return this.swipeModel.findOne(filter as FilterQuery<SwipeDocument>).exec();
-  }
-
-  async findAll(): Promise<Swipe[]> {
-    return this.swipeModel.find().exec();
-  }
-
-  async findOne(id: string): Promise<Swipe> {
-    const swipe = await this.swipeModel.findById(id).exec();
-    if (!swipe) {
-      throw new NotFoundException(`การสไลด์ ID ${id} ไม่พบ`);
-    }
-    return swipe;
-  }
-
-  async update(id: string, updateData: Partial<SwipeDocument>): Promise<Swipe> {
-    const swipe = await this.swipeModel
-      .findByIdAndUpdate(id, updateData, { new: true })
+  public async getPagination(
+    filterQuery: any,
+    page: number,
+    perPage: number,
+  ): Promise<[SwipeDocument[], number]> {
+    const data = await this.swipeModel
+      .aggregate([
+        { $match: filterQuery },
+        {
+          $lookup: {
+            from: 'user',
+            localField: '_adopterId',
+            foreignField: '_id',
+            as: 'adopter',
+          },
+        },
+        {
+          $lookup: {
+            from: 'pet',
+            localField: '_petId',
+            foreignField: '_id',
+            as: 'pet',
+          },
+        },
+        { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+        { $sort: { createdAt: 1 } },
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ])
       .exec();
-    if (!swipe) {
-      throw new NotFoundException(`การสไลด์ ID ${id} ไม่พบ`);
-    }
-    return swipe;
+    const total = await this.swipeModel.countDocuments(filterQuery);
+    return [data, total];
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.swipeModel.findByIdAndDelete(id).exec();
-    if (!result) {
-      throw new NotFoundException(`การสไลด์ ID ${id} ไม่พบ`);
-    }
+  public async createSwipe(data: Partial<ISwipe>): Promise<SwipeDocument> {
+    return this.swipeModel.create(data);
   }
 
-  async getSwipedPetsByUser(userId: Types.ObjectId) {
+  public async updateSwipe(
+    swipeId: Types.ObjectId,
+    data: Partial<ISwipe>,
+  ): Promise<SwipeDocument> {
     return this.swipeModel
-      .find({ _swiperId: userId })
-      .select('_swipedPetId')
+      .findByIdAndUpdate(swipeId, data, { new: true })
+      .lean();
+  }
+
+  public async getSwipedByAdopterId(
+    adopterId: Types.ObjectId,
+  ): Promise<SwipeDocument[]> {
+    return this.swipeModel.find({ _adopterId: adopterId }).lean();
+  }
+
+  public async getSwipeByPetIdAndAdopterId(
+    petId: Types.ObjectId,
+    adopterId: Types.ObjectId,
+  ): Promise<SwipeDocument> {
+    return this.swipeModel
+      .findOne({ _petId: petId, _adopterId: adopterId })
+      .lean();
+  }
+
+  public async getSwipeById(
+    swipeId: Types.ObjectId,
+  ): Promise<SwipeDocument & { pet: IPet; adopter: IUser }> {
+    const swipe = await this.swipeModel
+      .aggregate([
+        { $match: { _id: swipeId } },
+        {
+          $lookup: {
+            from: 'user',
+            localField: '_adopterId',
+            foreignField: '_id',
+            as: 'adopter',
+          },
+        },
+        {
+          $lookup: {
+            from: 'pet',
+            localField: '_petId',
+            foreignField: '_id',
+            as: 'pet',
+          },
+        },
+        { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+        { $limit: 1 },
+      ])
       .exec();
+    return swipe[0];
   }
 }

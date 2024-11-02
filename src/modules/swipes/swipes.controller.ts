@@ -4,24 +4,21 @@ import {
   Post,
   Body,
   Param,
-  Patch,
-  Delete,
   UseGuards,
+  Query,
+  Put,
 } from '@nestjs/common';
-import { SwipeService } from './swipes.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
-import { SwipeCreateDto } from './dto/swipes-create.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateSwipesUsecase } from './usecase/create.usecase';
-import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
+import { ApiTags, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { User } from '../user/user.decorator';
-import { IUser } from '../user/user.interface';
-import { IProfile } from '../profile/profile.interface';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { IUser } from '../user/interfaces/user.interface';
+import { CreateSwipesDto } from './dtos/createSwipes.dto';
+import { CreateSwipesUsecase } from './usecases/createSwipes.usecase';
+import { ISwipe } from './swipes.interface';
+import { HttpResponsePagination } from 'src/interface/respones';
+import GetSwipePaginationDto from './dtos/getPagination.dto';
+import { GetPaginationSwipeUsecase } from './usecases/getPaginationSwipe.usecase';
+import { ActionSwipesUsecase } from './usecases/actionSwipes.usecase';
 
 @ApiTags('Swipes')
 @ApiBearerAuth()
@@ -29,44 +26,34 @@ import { IProfile } from '../profile/profile.interface';
 @Controller('swipes')
 export class SwipeController {
   constructor(
-    private readonly swipeService: SwipeService,
+    private readonly getPaginationSwipeUsecase: GetPaginationSwipeUsecase,
     private readonly createSwipesUsecase: CreateSwipesUsecase,
+    private readonly actionSwipesUsecase: ActionSwipesUsecase,
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'สร้างการสไลด์ใหม่' })
-  @ApiResponse({ status: 201, description: 'การสไลด์ถูกสร้างแล้ว' })
-  create(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Body() createSwipeDto: SwipeCreateDto,
-  ) {
-    return this.createSwipesUsecase.execute({
-      ...createSwipeDto,
-      _swiperId: user.profile._id,
-    });
+  createSwipe(
+    @User() user: IUser,
+    @Body() data: CreateSwipesDto,
+  ): Promise<ISwipe> {
+    return this.createSwipesUsecase.execute(data, user);
   }
 
-  // @Get()
-  // @ApiOperation({ summary: 'ดึงข้อมูลการสไลด์ทั้งหมด' })
-  // findAll() {
-  //   return this.swipeService.findAll();
-  // }
+  @Get()
+  public async getPagination(
+    @User() user: IUser,
+    @Query() query: GetSwipePaginationDto,
+  ): Promise<HttpResponsePagination<ISwipe>> {
+    return this.getPaginationSwipeUsecase.execute(query, user);
+  }
 
-  // @Get(':id')
-  // @ApiOperation({ summary: 'ดึงข้อมูลการสไลด์ตาม ID' })
-  // findOne(@Param('id') id: string) {
-  //   return this.swipeService.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // @ApiOperation({ summary: 'อัปเดตการสไลด์ตาม ID' })
-  // update(@Param('id') id: string, @Body() updateSwipeDto: SwipeUpdateDto) {
-  //   return this.swipeService.update(id, updateSwipeDto);
-  // }
-
-  // @Delete(':id')
-  // @ApiOperation({ summary: 'ลบการสไลด์ตาม ID' })
-  // remove(@Param('id') id: string) {
-  //   return this.swipeService.remove(id);
-  // }
+  @Put(':id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the swipe' })
+  public async actionSwipe(
+    @Param('id') id: string,
+    @Query('status') status: 'accepted' | 'rejected',
+    @User() user: IUser,
+  ): Promise<ISwipe> {
+    return this.actionSwipesUsecase.execute(status, id, user);
+  }
 }

@@ -1,23 +1,13 @@
-import { Controller, Get, Param, UseGuards, Query } from '@nestjs/common';
-import { MatchService } from './matches.service';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../user/user.decorator';
-import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
-import { IUser } from '../user/user.interface';
-import { IProfile } from '../profile/profile.interface';
-import { UpdateStatusMatchUsecase } from './usecase/update-status.usecase';
-import GetMatchesPaginationDto from './dto/matches-getPagination.dto';
-import { GetMatchesPaginationUsecase } from './usecase/getPagination.usecase';
-import { MatchUpdateStatusDto } from './dto/matches-update-status.dto';
-import { Types } from 'mongoose';
-import { GetByIdMatchUsecase } from './usecase/getById.usecase';
+import { IUser } from '../user/interfaces/user.interface';
+import { HttpResponsePagination } from 'src/interface/respones';
+import { IMatch } from './matches.interface';
+import GetMatchPaginationDto from './dtos/getPaginationMatch.dto';
+import { GetPaginationMatchUsecase } from './usecases/getPaginationMatch.usecase';
+import { GetMatchByIdUsecase } from './usecases/getMatchById.usecase';
 
 @ApiTags('Matches')
 @ApiBearerAuth()
@@ -25,39 +15,24 @@ import { GetByIdMatchUsecase } from './usecase/getById.usecase';
 @Controller('matches')
 export class MatchController {
   constructor(
-    private readonly matchService: MatchService,
-    private readonly updateStatusMatchUsecase: UpdateStatusMatchUsecase,
-    private readonly getMatchesPaginationUsecase: GetMatchesPaginationUsecase,
-    private readonly getByIdMatchUsecase: GetByIdMatchUsecase,
+    private readonly getPaginationMatchUsecase: GetPaginationMatchUsecase,
+    private readonly getMatchByIdUsecase: GetMatchByIdUsecase,
   ) {}
-
-  @Get('status/:id')
-  @ApiOperation({ summary: 'ยอมรับการสไลด์' })
-  @ApiResponse({ status: 200, description: 'การสไลด์ถูกยอมรับแล้ว' })
-  accept(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Param('id') id: Types.ObjectId,
-    @Query() query: MatchUpdateStatusDto,
-  ) {
-    return this.updateStatusMatchUsecase.execute({ ...query, id });
-  }
-
-  // @Get()
-  // findAll() {
-  //   return this.matchService.findAll();
-  // }
 
   @Get()
   public async getPagination(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
-    @Query() query: GetMatchesPaginationDto,
-  ): Promise<any> {
-    return this.getMatchesPaginationUsecase.execute(query, user.profile);
+    @User() user: IUser,
+    @Query() query: GetMatchPaginationDto,
+  ): Promise<HttpResponsePagination<IMatch>> {
+    return this.getPaginationMatchUsecase.execute(query, user);
   }
 
-  @Get(':id')
-  @ApiParam({ name: 'id', type: String, description: 'The id of the match' })
-  public async getMatchById(@Param('id') id: Types.ObjectId): Promise<any> {
-    return this.getByIdMatchUsecase.execute(id);
+  @Get(":id")
+  @ApiParam({ name: 'id', type: String, description: 'The id of the user' })
+  public async getMatchById(
+    @User() user: IUser,
+    @Param('id') id: string,
+  ): Promise<IMatch> {
+    return this.getMatchByIdUsecase.execute(id, user);
   }
 }

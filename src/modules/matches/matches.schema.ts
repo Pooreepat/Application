@@ -1,11 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { MatchStatus } from './matches.constant';
 import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type MatchDocument = Match & Document;
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  collection: 'match',
+})
 export class Match {
   @Prop({
     unique: true,
@@ -13,17 +15,17 @@ export class Match {
   })
   _numberId: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
-  _profile1Id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'user' })
+  _caretakerId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
-  _profile2Id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'user' })
+  _adopterId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Pet' })
+  @Prop({ type: Types.ObjectId, ref: 'pet' })
   _petId: Types.ObjectId;
 
-  @Prop({ type: String, enum: MatchStatus })
-  status: MatchStatus;
+  @Prop({ type: Types.ObjectId, ref: 'swipe' })
+  _swipeId: Types.ObjectId;
 
   @Prop({ type: Boolean, default: false })
   isTransaction: boolean;

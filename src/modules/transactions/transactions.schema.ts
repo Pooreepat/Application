@@ -4,7 +4,7 @@ import { RandomNumber } from 'src/common/utils/randomNumber';
 
 export type TransactionDocument = Transaction & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'transaction' })
 export class Transaction {
   @Prop({
     unique: true,
@@ -12,20 +12,20 @@ export class Transaction {
   })
   _numberId: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Match', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'match' })
   _matchId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
-  _profile1Id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'user' })
+  _caretakerId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Profile', required: true })
-  _profile2Id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'user' })
+  _adopterId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Pet' })
+  @Prop({ type: Types.ObjectId, ref: 'pet' })
   _petId: Types.ObjectId;
 
-  @Prop([String])
-  images: string[];
+  @Prop({ type: [String], required: false, default: [] })
+  images?: string[];
 
   _id?: Types.ObjectId;
 }

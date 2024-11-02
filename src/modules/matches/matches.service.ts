@@ -12,135 +12,102 @@ export class MatchService {
 
   public async getPagination(
     filterQuery: any,
-    skip: number,
+    page: number,
     perPage: number,
-    isPet: boolean = true,
   ): Promise<[MatchDocument[], number]> {
-    const pipeline: any[] = [
-      { $match: filterQuery },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: perPage },
-      {
-        $lookup: {
-          from: 'profiles',
-          localField: '_profile1Id',
-          foreignField: '_id',
-          as: 'profile1',
-        },
-      },
-      {
-        $lookup: {
-          from: 'profiles',
-          localField: '_profile2Id',
-          foreignField: '_id',
-          as: 'profile2',
-        },
-      },
-      {
-        $lookup: {
-          from: 'pets',
-          localField: '_petId',
-          foreignField: '_id',
-          as: 'pet',
-        },
-      },
-      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
-    ];
-
-    if (!isPet) {
-      pipeline.push(
+    const data = await this.matchModel
+      .aggregate([
+        { $match: filterQuery },
         {
-          $group: {
-            _id: '$pet._id',
-            match: { $first: '$$ROOT' },
+          $lookup: {
+            from: 'user',
+            localField: '_caretakerId',
+            foreignField: '_id',
+            as: 'caretaker',
           },
         },
         {
-          $replaceRoot: { newRoot: '$match' },
+          $lookup: {
+            from: 'user',
+            localField: '_adopterId',
+            foreignField: '_id',
+            as: 'adopter',
+          },
         },
-      );
-    }
-
-    const matches = await this.matchModel.aggregate(pipeline).exec();
-
+        {
+          $lookup: {
+            from: 'pet',
+            localField: '_petId',
+            foreignField: '_id',
+            as: 'pet',
+          },
+        },
+        { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+        { $sort: { createdAt: 1 } },
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ])
+      .exec();
     const total = await this.matchModel.countDocuments(filterQuery);
-
-    return [matches, total];
+    return [data, total];
   }
 
-  public async getMatchById(id: Types.ObjectId): Promise<MatchDocument> {
+  public async createMatch(data: Partial<MatchDocument>): Promise<Match> {
+    const match = new this.matchModel(data);
+    return match.save();
+  }
+
+  public async findMatchById(id: Types.ObjectId): Promise<IMatch> {
     const match = await this.matchModel.aggregate([
-      { $match: { _id: new Types.ObjectId(id) } },
+      { $match: { _id: id } },
       {
         $lookup: {
-          from: 'profiles',
-          localField: '_profile1Id',
+          from: 'user',
+          localField: '_caretakerId',
           foreignField: '_id',
-          as: 'profile1',
+          as: 'caretaker',
         },
       },
       {
         $lookup: {
-          from: 'profiles',
-          localField: '_profile2Id',
+          from: 'user',
+          localField: '_adopterId',
           foreignField: '_id',
-          as: 'profile2',
+          as: 'adopter',
         },
       },
       {
         $lookup: {
-          from: 'pets',
+          from: 'pet',
           localField: '_petId',
           foreignField: '_id',
           as: 'pet',
         },
       },
-      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
       { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
       { $limit: 1 },
-    ]);
-    return match.length > 0 ? match[0] : null;
-  }
-
-  async create(createMatchDto: Partial<MatchDocument>): Promise<Match> {
-    const match = new this.matchModel(createMatchDto);
-    return match.save();
-  }
-
-  async findAll(): Promise<Match[]> {
-    return this.matchModel.find().exec();
-  }
-
-  async findOne(id: string): Promise<Match> {
-    const match = await this.matchModel.findById(id).exec();
+    ]).exec();
     if (!match) {
-      throw new NotFoundException('ไม่พบการแข่งขัน');
+      throw new NotFoundException('ไม่พบการจับคู่');
     }
-    return match;
+    return match[0];
   }
 
-  async update(
+  public async update(
     id: Types.ObjectId,
-    updateMatchDto: Partial<MatchDocument>,
+    data: Partial<MatchDocument>,
   ): Promise<IMatch> {
     const updatedMatch = await this.matchModel
-      .findByIdAndUpdate(id, updateMatchDto, { new: true })
+      .findByIdAndUpdate(id, data, { new: true })
       .exec();
     if (!updatedMatch) {
       throw new NotFoundException('ไม่สามารถอัปเดตการแข่งขันได้');
     }
     return updatedMatch;
-  }
-
-  async delete(id: Types.ObjectId): Promise<void> {
-    const result = await this.matchModel.findByIdAndDelete(id).exec();
-    if (!result) {
-      throw new NotFoundException('ไม่สามารถลบการแข่งขันได้');
-    }
   }
 
   async removeMatches(

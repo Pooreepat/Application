@@ -2,8 +2,8 @@ export interface HttpRespons {
   message: string;
 }
 
-export interface HttpResponsePagination {
-  data: any[];
+export interface HttpResponsePagination<T> {
+  data: T[];
   total: number;
   page: number;
   perPage: number;

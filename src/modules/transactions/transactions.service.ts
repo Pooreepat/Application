@@ -13,121 +13,85 @@ export class TransactionService {
 
   public async getPagination(
     filterQuery: any,
-    skip: number,
+    page: number,
     perPage: number,
   ): Promise<[TransactionDocument[], number]> {
-    const transactions = await this.transactionModel.aggregate([
-      { $match: filterQuery },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: perPage },
-      {
-        $lookup: {
-          from: 'profiles',
-          localField: '_profile1Id',
-          foreignField: '_id',
-          as: 'profile1',
+    const data = await this.transactionModel
+      .aggregate([
+        { $match: filterQuery },
+        {
+          $lookup: {
+            from: 'user',
+            localField: '_caretakerId',
+            foreignField: '_id',
+            as: 'caretaker',
+          },
         },
-      },
-      {
-        $lookup: {
-          from: 'profiles',
-          localField: '_profile2Id',
-          foreignField: '_id',
-          as: 'profile2',
+        {
+          $lookup: {
+            from: 'user',
+            localField: '_adopterId',
+            foreignField: '_id',
+            as: 'adopter',
+          },
         },
-      },
-      {
-        $lookup: {
-          from: 'pets',
-          localField: '_petId',
-          foreignField: '_id',
-          as: 'pet',
+        {
+          $lookup: {
+            from: 'pet',
+            localField: '_petId',
+            foreignField: '_id',
+            as: 'pet',
+          },
         },
-      },
-      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
-    ]);
+        { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
+        { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+        { $sort: { createdAt: -1 } },
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ])
+      .exec();
     const total = await this.transactionModel.countDocuments(filterQuery);
-    return [transactions, total];
+    return [data, total];
   }
 
-  async create(
-    createTransactionDto: Partial<TransactionDocument>,
-  ): Promise<Transaction> {
-    const createdTransaction = new this.transactionModel(createTransactionDto);
+  async create(data: Partial<TransactionDocument>): Promise<Transaction> {
+    const createdTransaction = new this.transactionModel(data);
     return createdTransaction.save();
   }
 
-  async findAll(): Promise<Transaction[]> {
-    return this.transactionModel.find().exec();
-  }
-
-  async findOne(id: string): Promise<Transaction> {
-    const transaction = await this.transactionModel.findById(id).exec();
-    if (!transaction) {
-      throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
-    }
-    return transaction;
-  }
-
-  async update(
-    id: Types.ObjectId,
-    updateTransactionDto: Partial<TransactionDocument>,
-  ): Promise<Transaction> {
-    const transaction = await this.transactionModel
-      .findByIdAndUpdate(id, updateTransactionDto, { new: true })
-      .exec();
-    if (!transaction) {
-      throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
-    }
-    return transaction;
-  }
-
-  async remove(id: string): Promise<void> {
-    const result = await this.transactionModel.findByIdAndDelete(id).exec();
-    if (!result) {
-      throw new NotFoundException(`ธุรกรรม ID ${id} ไม่พบ`);
-    }
-  }
-
-  async getTransactionById(id: Types.ObjectId): Promise<ITransaction> {
-    const transactions = await this.transactionModel.aggregate([
-      {
-        $match: {
-          _id: id,
-        },
-      },
-      { $limit: 1 },
+  async findTransactionById(id: Types.ObjectId): Promise<ITransaction> {
+    const transaction = await this.transactionModel.aggregate([
+      { $match: { _id: id } },
       {
         $lookup: {
-          from: 'profiles',
-          localField: '_profile1Id',
+          from: 'user',
+          localField: '_caretakerId',
           foreignField: '_id',
-          as: 'profile1',
+          as: 'caretaker',
         },
       },
       {
         $lookup: {
-          from: 'profiles',
-          localField: '_profile2Id',
+          from: 'user',
+          localField: '_adopterId',
           foreignField: '_id',
-          as: 'profile2',
+          as: 'adopter',
         },
       },
       {
         $lookup: {
-          from: 'pets',
+          from: 'pet',
           localField: '_petId',
           foreignField: '_id',
           as: 'pet',
         },
       },
-      { $unwind: { path: '$profile1', preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: '$profile2', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$adopter', preserveNullAndEmptyArrays: true } },
       { $unwind: { path: '$pet', preserveNullAndEmptyArrays: true } },
+      { $limit: 1 },
     ]);
-    return transactions[0];
+    return transaction[0];
   }
 }

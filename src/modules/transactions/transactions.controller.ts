@@ -1,17 +1,23 @@
-import { Controller, Get, UseGuards, Query, Param, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Query,
+  Param,
+  Body,
+  Put,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import GetTransactionsPaginationDto from './dto/getPagination.dto';
+import GetTransactionsPaginationDto from './dto/getPaginationTransactions.dto';
 import { User } from '../user/user.decorator';
-import { ProfileTransformUserPipe } from '../profile/pipe/merchant-transform-user.pipe';
-import { IUser } from '../user/user.interface';
-import { IProfile } from '../profile/profile.interface';
-import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecase';
+import { GetPaginationTransactionsUsecase } from './usecase/getPaginationTransactions.usecase';
 import { Types } from 'mongoose';
-import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
+import { GetTransactionByIdUsecase } from './usecase/getTransactionById.usecase';
 import { ITransaction } from './transactions.interface';
 import { UpdateTransactionDto } from './dto/transactions-update.dto';
-import { UpdateTransactionUsecase } from './usecase/update.usecase';
+import { IUser } from '../user/interfaces/user.interface';
+import { HttpResponsePagination } from 'src/interface/respones';
 
 @ApiTags('Transactions')
 @ApiBearerAuth()
@@ -19,35 +25,24 @@ import { UpdateTransactionUsecase } from './usecase/update.usecase';
 @Controller('transactions')
 export class TransactionController {
   constructor(
-    private readonly getTransactionsPaginationUsecase: GetTransactionsPaginationUsecase,
-    private readonly getByIdTransactionsUsecase: GetByIdTransactionsUsecase,
-    private readonly updateTransactionUsecase: UpdateTransactionUsecase,
+    private readonly getPaginationTransactionsUsecase: GetPaginationTransactionsUsecase,
+    private readonly getTransactionByIdUsecase: GetTransactionByIdUsecase,
   ) {}
 
   @Get()
   public async getPagination(
-    @User(ProfileTransformUserPipe) user: IUser & { profile: IProfile },
+    @User() user: IUser,
     @Query() query: GetTransactionsPaginationDto,
-  ): Promise<any> {
-    return this.getTransactionsPaginationUsecase.execute(query, user);
+  ): Promise<HttpResponsePagination<ITransaction>> {
+    return this.getPaginationTransactionsUsecase.execute(query, user);
   }
 
   @Get(':id')
-  @ApiParam({ name: 'id', type: String, description: 'The id of the transaction' })
-  public async getTransaction(
-    @Param('id') id: Types.ObjectId,
+  @ApiParam({ name: 'id', type: String, description: 'The id of the user' })
+  public async getMatchById(
     @User() user: IUser,
+    @Param('id') id: string,
   ): Promise<ITransaction> {
-    return this.getByIdTransactionsUsecase.execute(id);
+    return this.getTransactionByIdUsecase.execute(id, user);
   }
-
-  @Put(':id')
-  @ApiParam({ name: 'id', type: String, description: 'The id of the transaction' })
-  public async updateTransaction(
-    @Param('id') id: Types.ObjectId,
-    @Body() data: UpdateTransactionDto,
-  ): Promise<any> {
-    return this.updateTransactionUsecase.execute(id, data);
-  }
-
 }

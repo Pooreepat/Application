@@ -3,19 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TransactionService } from './transactions.service';
 import { TransactionController } from './transactions.controller';
 import { Transaction, TransactionSchema } from './transactions.schema';
-import { ProfileModule } from '../profile/profile.module';
-import { GetTransactionsPaginationUsecase } from './usecase/getPagination.usecase';
-import { TransactionGateway } from './transactions.gateway';
+// import { TransactionGateway } from './transactions.gateway';
 import { AuthModule } from '../auth/auth.module';
-import { GetByIdTransactionsUsecase } from './usecase/getById.usecase';
-import { MatchModule } from '../matches/matches.module';
-import { PetModule } from '../pet/pet.module';
-import { UpdateTransactionUsecase } from './usecase/update.usecase';
+import { GetPaginationTransactionsUsecase } from './usecase/getPaginationTransactions.usecase';
+import { GetTransactionByIdUsecase } from './usecase/getTransactionById.usecase';
 
 const usecases = [
-  GetTransactionsPaginationUsecase,
-  GetByIdTransactionsUsecase,
-  UpdateTransactionUsecase,
+  GetPaginationTransactionsUsecase,
+GetTransactionByIdUsecase
 ];
 
 @Module({
@@ -23,12 +18,11 @@ const usecases = [
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
     ]),
-    ProfileModule,
-    AuthModule,
-    MatchModule,
-    PetModule,
+    AuthModule
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, ...usecases, TransactionGateway],
+  providers: [TransactionService, ...usecases, 
+    // TransactionGateway
+  ],
 })
 export class TransactionModule {}

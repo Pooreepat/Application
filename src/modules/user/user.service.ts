@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserDocument } from './user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError, Types } from 'mongoose';
-import { EUserRole } from './user.constant';
-import UserRegisterDto from './dto/user-register.dto';
+import { User, UserDocument } from './schemas/user.schema';
+import { IUser } from './interfaces/user.interface';
 import UserLoginDto from '../auth/dto/user-login.dto';
-import { IUser } from './user.interface';
 
 @Injectable()
 export class UserService {
@@ -15,19 +13,35 @@ export class UserService {
     return this.userModel.findById(userId).lean();
   }
 
-  public async fetchUsers(
+  public async getPagination(
+    filterQuery: any,
     page: number,
     perPage: number,
-    filter: Record<string, any>,
-  ): Promise<UserDocument[]> {
-    return this.userModel
-      .find(filter)
+  ): Promise<[UserDocument[], number]> {
+    const data = await this.userModel
+      .find(filterQuery)
+      .sort({ createdAt: -1 })
       .skip((page - 1) * perPage)
-      .limit(perPage);
+      .limit(perPage)
+      .lean();
+    const total = await this.userModel.countDocuments(filterQuery);
+    return [data, total];
   }
 
-  public async getUserByUsername(username: string): Promise<UserDocument> {
-    return (await this.userModel.findOne({ username }).exec()).toObject();
+  public async createUser(data: Partial<IUser>): Promise<UserDocument> {
+    const user = new this.userModel(data);
+    return user.save();
+  }
+
+  public async updateUser(
+    userId: Types.ObjectId,
+    data: Partial<IUser>,
+  ): Promise<UserDocument> {
+    return this.userModel.findByIdAndUpdate(userId, data, { new: true }).lean();
+  }
+
+  public async deleteUser(userId: Types.ObjectId): Promise<UserDocument> {
+    return this.userModel.findByIdAndDelete(userId).lean();
   }
 
   public async validateUserCredentials(data: UserLoginDto): Promise<User> {
@@ -51,49 +65,4 @@ export class UserService {
       throw new MongooseError(e);
     }
   }
-
-  public async registerUser(data: UserRegisterDto): Promise<UserDocument> {
-    const user = {
-      ...data,
-      role: [EUserRole.USER],
-    };
-    return this.userModel.create(user);
-  }
-
-  public async createUser(data: Partial<User>): Promise<UserDocument> {
-    return this.userModel.create(data);
-  }
-
-  public async updateUser(
-    userId: string | Types.ObjectId,
-    data: Partial<UserDocument>,
-  ): Promise<UserDocument> {
-    return this.userModel.findByIdAndUpdate(userId, data, { new: true });
-  }
-
-  public async deleteUser(userId: Types.ObjectId): Promise<UserDocument> {
-    return this.userModel.findByIdAndDelete(userId);
-  }
-
-  // public async updateUserByAction(
-  //   userId: string,
-  //   data: Partial<User>,
-  //   action: EUserAction,
-  //   note: string,
-  // ): Promise<UserDocument> {
-  //   return this.userModel.findByIdAndUpdate(
-  //     data._id,
-  //     {
-  //       $set: data,
-  //       $push: {
-  //         actions: {
-  //           userId: userId,
-  //           action,
-  //           note,
-  //         },
-  //       },
-  //     },
-  //     { new: true },
-  //   );
-  // }
 }
