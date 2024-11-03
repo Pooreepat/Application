@@ -16,23 +16,17 @@ export class UpdatePostsUsecase {
     user: IUser,
   ): Promise<HttpRespons> {
     try {
-      switch (user.role[0]) {
-        case EUserRole.USER:
-          const post = await this.postService.getPostById(
-            new Types.ObjectId(id),
-          );
-          if (!post) {
-            throw new HttpException('Cannot update this post', 500);
-          }
-          if (post._receiverId) {
-            throw new HttpException('You cannot update this post', 500);
-          }
-          if (!post._authorId.equals(user._id)) {
-            throw new HttpException('You cannot update this post', 500);
-          }
-          break;
-        default:
-          throw new HttpException('You cannot update this post', 500);
+      const findPost = await this.postService.getPostById(
+        new Types.ObjectId(id),
+      );
+      if (!findPost) {
+        throw new HttpException('Cannot update this post', 500);
+      }
+      if (findPost._receiverId) {
+        throw new HttpException('You cannot update this post', 500);
+      }
+      if (!findPost._authorId.equals(user._id)) {
+        throw new HttpException('You cannot update this post', 500);
       }
 
       const post = await this.postService.updatePost(new Types.ObjectId(id), {

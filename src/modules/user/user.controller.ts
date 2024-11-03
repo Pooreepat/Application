@@ -79,16 +79,6 @@ export class UserController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Put('self')
-  public async updateSelf(
-    @Body() data: UpdateUserDto,
-    @User() user: IUser,
-  ): Promise<IUser> {
-    return this.updateUserUsecase.execute(data, user._id, user);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiParam({ name: 'id', type: String, description: 'The id of the user' })
   public async update(
@@ -97,5 +87,15 @@ export class UserController {
     @Body() data: UpdateUserDto,
   ): Promise<IUser> {
     return this.updateUserUsecase.execute(data, id, user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Put('self')
+  public async updateSelf(
+    @Body() data: UpdateUserDto,
+    @User() user: IUser,
+  ): Promise<IUser> {
+    return this.updateUserUsecase.execute(data, user._id, user);
   }
 }

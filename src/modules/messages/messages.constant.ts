@@ -1,4 +1,4 @@
-export enum MessageType {
+export enum EMessageType {
   TEXT = 'text',
   IMAGE = 'image',
   STICKER = 'sticker',

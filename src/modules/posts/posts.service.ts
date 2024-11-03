@@ -127,6 +127,7 @@ export class PostsService {
         $group: {
           _id: '$_id',
           _numberId: { $first: '$_numberId' },
+          _authorId: { $first: '$_authorId' },
           author: { $first: '$author' },
           receiver: { $first: '$receiver' },
           title: { $first: '$title' },

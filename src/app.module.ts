@@ -6,6 +6,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PetModule } from './modules/pet/pet.module';
 import { MatchModule } from './modules/matches/matches.module';
+import { TransactionModule } from './modules/transactions/transactions.module';
+import { SwipeModule } from './modules/swipes/swipes.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { NewsModule } from './modules/news/news.module';
+import { MessageModule } from './modules/messages/messages.module';
 
 @Module({
   imports: [
@@ -25,9 +30,14 @@ import { MatchModule } from './modules/matches/matches.module';
       },
     }),
     UserModule,
-    AuthModule,
+    TransactionModule,
+    SwipeModule,
+    PostsModule,
     PetModule,
-    MatchModule
+    NewsModule,
+    MessageModule,
+    AuthModule,
+    MatchModule,
   ],
 })
 export class AppModule {}

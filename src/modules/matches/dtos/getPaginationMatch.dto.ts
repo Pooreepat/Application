@@ -24,11 +24,4 @@ export default class GetMatchPaginationDto {
     message: 'คำค้นหาต้องเป็นตัวอักษร',
   })
   search?: string;
-
-  // @ApiProperty()
-  // @IsOptional()
-  // @IsString({
-  //   message: 'คำค้นหาต้องเป็นตัวอักษร',
-  // })
-  // _petId?: string;
 }

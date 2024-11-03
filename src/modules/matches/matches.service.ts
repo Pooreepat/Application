@@ -97,7 +97,7 @@ export class MatchService {
     return match[0];
   }
 
-  public async update(
+  public async updateMatch(
     id: Types.ObjectId,
     data: Partial<MatchDocument>,
   ): Promise<IMatch> {

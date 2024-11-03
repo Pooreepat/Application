@@ -4,6 +4,7 @@ import { PetService } from '../pet.service';
 import { IPet } from '../pet.interface';
 import { IUser } from 'src/modules/user/interfaces/user.interface';
 import GetPetPaginationDto from '../dtos/getPaginationPet.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GetPaginationPetUsecase {
@@ -25,8 +26,8 @@ export class GetPaginationPetUsecase {
 
       if (data._ownerId) {
         filter['$or'] = [
-          { _caretakerId: data._ownerId },
-          { _adopterId: data._ownerId },
+          { _caretakerId: new Types.ObjectId(data._ownerId) },
+          { _adopterId: new Types.ObjectId(data._ownerId) },
         ];
       }
 

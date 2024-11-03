@@ -7,22 +7,28 @@ import { Transaction, TransactionSchema } from './transactions.schema';
 import { AuthModule } from '../auth/auth.module';
 import { GetPaginationTransactionsUsecase } from './usecase/getPaginationTransactions.usecase';
 import { GetTransactionByIdUsecase } from './usecase/getTransactionById.usecase';
+import { PetModule } from '../pet/pet.module';
+import { MatchModule } from '../matches/matches.module';
+import { TransactionGateway } from './transactions.gateway';
+import { UserModule } from '../user/user.module';
 
-const usecases = [
-  GetPaginationTransactionsUsecase,
-GetTransactionByIdUsecase
-];
+const usecases = [GetPaginationTransactionsUsecase, GetTransactionByIdUsecase];
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
     ]),
-    AuthModule
+    AuthModule,
+    PetModule,
+    MatchModule,
+    UserModule
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, ...usecases, 
-    // TransactionGateway
+  providers: [
+    TransactionService,
+    ...usecases,
+    TransactionGateway
   ],
 })
 export class TransactionModule {}

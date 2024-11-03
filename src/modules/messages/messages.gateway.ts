@@ -17,6 +17,8 @@ import { ConfigService } from '@nestjs/config';
 import { Types } from 'mongoose';
 import { UserService } from '../user/user.service';
 import { MatchService } from '../matches/matches.service';
+import { IMatch } from '../matches/matches.interface';
+import { IUser } from '../user/interfaces/user.interface';
 
 @WebSocketGateway({
   namespace: '/messages',
@@ -45,16 +47,17 @@ export class MessagesGateway
   async handleConnection(@ConnectedSocket() socket: Socket) {
     try {
       const user = await this.verifyUser(socket);
-      if (user) {
-        socket.data.user = user;
-        this.activeUsers.set(user._id.toString(), socket.id);
-        socket.emit('activeUsers', Array.from(this.activeUsers.keys()));
-
-        this.wss.emit('userStatus', {
-          id: user._id.toString(),
-          status: 'online',
-        });
+      if (!user) {
+        throw new UnauthorizedException();
       }
+      socket.data.user = user;
+      this.activeUsers.set(user._id.toString(), socket.id);
+      socket.emit('activeUsers', Array.from(this.activeUsers.keys()));
+
+      this.wss.emit('userStatus', {
+        id: user._id.toString(),
+        status: 'online',
+      });
     } catch (error) {
       socket.disconnect();
     }
@@ -74,17 +77,19 @@ export class MessagesGateway
       this.wss.emit('userStatus', { id, status: 'offline' });
     }
   }
-/// start in here
+
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { matchId: string; senderId: string; petId: string },
+    @MessageBody() data: { matchId: string },
   ) {
     const { matchId } = data;
-    if (!matchId ) return;
-    const match = await this.matchService.findMatchById(new Types.ObjectId(matchId));
+    if (!matchId) return;
+    const match = await this.matchService.findMatchById(
+      new Types.ObjectId(matchId),
+    );
     if (!match) return;
-    socket.join(matchId);
+    socket.join(match._id.toString());
     socket.data.match = match;
   }
 
@@ -93,23 +98,27 @@ export class MessagesGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() messageDto: CreateMessageDto,
   ) {
-    const matchId = socket.data.matchId;
-    if (!matchId) return;
+    const match: IMatch = socket.data.match;
+    const user: IUser = socket.data.user;
+    if (!match) return;
+    if (!user) return;
 
     try {
       const message = await this.messageService.create({
         ...messageDto,
-        _matchId: new Types.ObjectId(matchId),
-        type: messageDto.type,
-        _senderId: new Types.ObjectId(socket.data.user._id),
+        _matchId: new Types.ObjectId(match._id),
+        _senderId: new Types.ObjectId(user._id),
       });
-      this.wss.to(matchId).emit('newMessage', message);
+      this.wss.to(match._id.toString()).emit('newMessage', message);
 
-      const recipientId = this.findSocketByUserId(socket.data.senderId);
+      const recipientId = this.findSocketByUserId(
+        user._id.equals(match._caretakerId)
+          ? match._adopterId.toString()
+          : match._caretakerId.toString(),
+      );
       if (recipientId) {
         this.wss.to(recipientId).emit('newMessageNotification', {
           ...message,
-          petId: socket.data.petId,
         });
       }
     } catch (error) {
@@ -137,9 +146,7 @@ export class MessagesGateway
       });
 
       const { _id } = decoded;
-      return await this.userService.getUserById(
-        new Types.ObjectId(_id),
-      );
+      return await this.userService.getUserById(new Types.ObjectId(_id));
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }

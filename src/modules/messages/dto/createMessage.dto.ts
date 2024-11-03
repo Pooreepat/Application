@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, IsArray } from 'class-validator';
-import { MessageType } from '../messages.constant';
+import { EMessageType } from '../messages.constant';
 
 export class CreateMessageDto {
-  @ApiProperty({ example: 'text', enum: MessageType })
-  @IsEnum(MessageType, { message: 'type ต้องเป็นค่าที่ถูกต้อง' })
-  type: MessageType;
+  @ApiProperty({ example: 'text', enum: EMessageType })
+  @IsEnum(EMessageType, { message: 'type ต้องเป็นค่าที่ถูกต้อง' })
+  type: EMessageType;
 
   @ApiProperty({ example: 'Hello world', description: 'Message content' })
   @IsString({ message: 'message ต้องเป็นข้อความ' })

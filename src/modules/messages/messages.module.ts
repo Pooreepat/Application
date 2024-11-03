@@ -6,6 +6,8 @@ import { MessagesGateway } from './messages.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { MessageController } from './messages.controller';
 import { GetMessagePaginationUsecase } from './usecase/getPagination.usecase';
+import { MatchModule } from '../matches/matches.module';
+import { UserModule } from '../user/user.module';
 
 const usecases = [GetMessagePaginationUsecase];
 
@@ -13,6 +15,8 @@ const usecases = [GetMessagePaginationUsecase];
   imports: [
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
     AuthModule,
+    MatchModule,
+    UserModule
   ],
   controllers: [MessageController],
   providers: [MessageService, MessagesGateway, ...usecases],

@@ -55,7 +55,7 @@ export class TransactionService {
     return [data, total];
   }
 
-  async create(data: Partial<TransactionDocument>): Promise<Transaction> {
+  async createTransaction(data: Partial<TransactionDocument>): Promise<Transaction> {
     const createdTransaction = new this.transactionModel(data);
     return createdTransaction.save();
   }

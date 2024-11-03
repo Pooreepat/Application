@@ -30,14 +30,14 @@ export class GetPaginationTransactionsUsecase {
           break;
         case EUserRole.AGENCY:
           filter['$or'] = [
-            { _adopterId: user._id },
-            { _caretakerId: user._id },
+            { _adopterId: new Types.ObjectId(user._id) },
+            { _caretakerId: new Types.ObjectId(user._id) },
           ];
           break;
         case EUserRole.USER:
           filter['$or'] = [
-            { _adopterId: user._id },
-            { _caretakerId: user._id },
+            { _adopterId: new Types.ObjectId(user._id) },
+            { _caretakerId: new Types.ObjectId(user._id) },
           ];
           break;
         default:

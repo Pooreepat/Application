@@ -1,198 +1,179 @@
-// import {
-//   WebSocketGateway,
-//   SubscribeMessage,
-//   ConnectedSocket,
-//   WebSocketServer,
-//   OnGatewayInit,
-//   OnGatewayConnection,
-//   OnGatewayDisconnect,
-//   MessageBody,
-// } from '@nestjs/websockets';
-// import { Server, Socket } from 'socket.io';
-// import { JwtService } from '@nestjs/jwt';
-// import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
-// import { Types } from 'mongoose';
-// import { TransactionService } from './transactions.service';
-// import { MatchService } from '../matches/matches.service';
-// import { PetService } from '../pet/pet.service';
-// import { UserService } from '../user/user.service';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  ConnectedSocket,
+  WebSocketServer,
+  OnGatewayInit,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  MessageBody,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Types } from 'mongoose';
+import { TransactionService } from './transactions.service';
+import { MatchService } from '../matches/matches.service';
+import { PetService } from '../pet/pet.service';
+import { UserService } from '../user/user.service';
+import { IMatch } from '../matches/matches.interface';
+import { IUser } from '../user/interfaces/user.interface';
+import { EPetStatus } from '../pet/pet.constant';
+import { UpdateTransactionDto } from './dto/transactions-update.dto';
 
-// @WebSocketGateway({
-//   namespace: '/transactions',
-//   cors: { origin: '*' },
-// })
-// export class TransactionGateway
-//   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-// {
-//   @WebSocketServer() private server: Server;
+@WebSocketGateway({
+  namespace: '/transactions',
+  cors: { origin: '*' },
+})
+export class TransactionGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer() private server: Server;
 
-//   private roomConfirmations = new Map<string, Set<string>>();
-//   private roomUsers = new Map<
-//     string,
-//     Set<{ userId: string; name: string }>
-//   >();
+  private readonly rooms = new Map<
+    string,
+    { caretakerConfirmed: boolean; adopterConfirmed: boolean }
+  >();
 
-//   constructor(
-//     private readonly petService: PetService,
-//     private readonly transactionService: TransactionService,
-//     private readonly matchService: MatchService,
-//     private readonly jwtService: JwtService,
-//     private readonly userService: UserService,
-//     private readonly configService: ConfigService,
-//   ) {}
+  constructor(
+    private readonly petService: PetService,
+    private readonly transactionService: TransactionService,
+    private readonly matchService: MatchService,
+    private readonly jwtService: JwtService,
+    private readonly userService: UserService,
+    private readonly configService: ConfigService,
+  ) {}
 
-//   afterInit() {
-//     console.log('Transaction WebSocket initialized.');
-//   }
+  afterInit() {
+    console.log('Transaction WebSocket initialized.');
+  }
 
-//   async handleConnection(@ConnectedSocket() socket: Socket) {
-//     try {
-//       const user = await this.verifyUser(socket);
-//       if (!user) {
-//         throw new UnauthorizedException('User not found');
-//       }
-//       socket.data.user = user;
-//     } catch (error) {
-//       socket.disconnect();
-//     }
-//   }
+  async handleConnection(@ConnectedSocket() socket: Socket) {
+    try {
+      const user = await this.verifyUser(socket);
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+      socket.data.user = user;
+    } catch (error) {
+      socket.disconnect();
+    }
+  }
 
-//   handleDisconnect(@ConnectedSocket() socket: Socket) {
-//     const roomId = socket.data.roomId?.toString();
-//     const userId = socket.data.user?._id.toString();
+  async handleDisconnect(@ConnectedSocket() socket: Socket) {
+    const match: IMatch = socket.data.match;
+    const user: IUser = socket.data.user;
+    if (!match || !user) return;
+  }
 
-//     if (roomId && userId) {
-//       const roomUsers = this.roomUsers.get(roomId);
-//       if (roomUsers) {
-//         roomUsers.forEach((user) => {
-//           if (user.userId === userId) {
-//             roomUsers.delete(user);
-//           }
-//         });
+  @SubscribeMessage('joinRoom')
+  async joinRoom(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { matchId: string },
+  ) {
+    const { matchId } = data;
+    const match = await this.matchService.findMatchById(
+      new Types.ObjectId(matchId),
+    );
+    if (!match) return;
 
-//         if (roomUsers.size === 0) {
-//           this.roomUsers.delete(roomId);
-//         } else {
-//           this.server.to(roomId).emit('userListUpdated', Array.from(roomUsers));
-//         }
-//       }
+    if (!this.rooms.has(matchId)) {
+      this.rooms.set(matchId, {
+        caretakerConfirmed: false,
+        adopterConfirmed: false,
+      });
+    }
+    socket.data.match = match;
+    socket.join(matchId);
+    this.server
+      .to(matchId)
+      .emit('userJoined', { userId: socket.data.user._id });
+  }
 
-//       this.roomConfirmations.delete(roomId);
-//     }
-//   }
+  @SubscribeMessage('confirmParticipation')
+  async confirmParticipation(@ConnectedSocket() socket: Socket) {
+    const match: IMatch = socket.data.match;
+    const user: IUser = socket.data.user;
+    if (!match || !user) return;
 
-//   @SubscribeMessage('joinRoom')
-//   async handleJoinRoom(
-//     @ConnectedSocket() socket: Socket,
-//     @MessageBody('matchId') matchId: Types.ObjectId,
-//   ) {
-//     const roomId = matchId?.toString();
+    if (!this.rooms.has(match._id.toString())) {
+      throw new BadRequestException('Room does not exist');
+    }
 
-//     if (!roomId) {
-//       throw new BadRequestException('Invalid room ID');
-//     }
+    const room = this.rooms.get(match._id.toString());
 
-//     socket.join(roomId);
-//     socket.data.roomId = roomId;
+    const isCaretaker = match._caretakerId.equals(user._id);
+    if (isCaretaker) {
+      room.caretakerConfirmed = true;
+    } else {
+      room.adopterConfirmed = true;
+    }
 
-//     if (!this.roomConfirmations.has(roomId)) {
-//       this.roomConfirmations.set(roomId, new Set());
-//     }
+    if (room.caretakerConfirmed && room.adopterConfirmed) {
+      this.server
+        .to(match._id.toString())
+        .emit('confirmationStatus', { status: 'confirmedAll' });
+    } else {
+      this.server
+        .to(match._id.toString())
+        .emit('userConfirmed', { userId: user._id });
+    }
+  }
 
-//     if (!this.roomUsers.has(roomId)) {
-//       this.roomUsers.set(roomId, new Set());
-//     }
-//     const roomUsers = this.roomUsers.get(roomId);
-//     const user = socket.data.user;
-//     roomUsers.add({ userId: user._id.toString(), name: user. });
+  @SubscribeMessage('confirmTransactionByCaretaker')
+  async sendImage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: UpdateTransactionDto
+  ) {
+    const { images } = data;
+    if (images.length < 1) {
+      throw new BadRequestException('Images are required');
+    }
 
-//     this.server.to(roomId).emit('userListUpdated', Array.from(roomUsers));
+    const match: IMatch = socket.data.match;
+    const user: IUser = socket.data.user;
+    if (!match || !user) return;
 
-//     const confirmations = this.roomConfirmations.get(roomId);
-//     this.server
-//       .to(roomId)
-//       .emit('confirmedTransactionUser', Array.from(confirmations));
-//   }
+    const room = this.rooms.get(match._id.toString());
 
-//   @SubscribeMessage('confirmTransaction')
-//   async handleConfirmTransaction(@ConnectedSocket() socket: Socket) {
-//     const roomId = socket.data.roomId;
-//     const profileId = socket.data.profile._id.toString();
+    if (!room.caretakerConfirmed || !room.adopterConfirmed) {
+      throw new BadRequestException('Both users must confirm participation');
+    }
 
-//     if (!roomId) {
-//       throw new BadRequestException('Room ID is required');
-//     }
+    await this.transactionService.createTransaction({
+      _matchId: match._id,
+      _caretakerId: match._caretakerId,
+      _adopterId: match._adopterId,
+      _petId: match._petId,
+      images,
+    });
 
-//     const confirmations = this.roomConfirmations.get(roomId);
-//     if (!confirmations) {
-//       throw new BadRequestException('No room found for confirmation');
-//     }
+    await this.petService.updatePet(match._petId, {
+      status: EPetStatus.COMPLETED,
+      _adopterId: match._adopterId,
+    });
 
-//     if (confirmations.has(profileId)) {
-//       return;
-//     }
+    await this.matchService.updateMatch(match._id, { isTransaction: true });
 
-//     confirmations.add(profileId);
+    this.server
+      .to(match._id.toString())
+      .emit('confirmationStatus', { status: 'transactionConfirmed' });
+  }
 
-//     if (confirmations.size >= 2) {
-//       try {
-//         const match = await this.matchService.update(
-//           new Types.ObjectId(roomId),
-//           {
-//             isTransaction: true,
-//           },
-//         );
-//         if (!match) {
-//           throw new BadRequestException('Match not found');
-//         }
-//         await this.matchService.removeMatches(
-//           new Types.ObjectId(match._petId),
-//           new Types.ObjectId(match._id),
-//         );
-//         const transaction = await this.transactionService.create({
-//           _matchId: new Types.ObjectId(roomId),
-//           _petId: new Types.ObjectId(match._petId),
-//           _profile1Id: new Types.ObjectId(match._profile1Id),
-//           _profile2Id: new Types.ObjectId(match._profile2Id),
-//         });
-//         if (!transaction) {
-//           throw new BadRequestException('Transaction creation failed');
-//         }
-//         const pet = await this.petService.update(
-//           new Types.ObjectId(match._petId),
-//           {
-//             _profileId: new Types.ObjectId(match._profile1Id),
-//             status: Status.SUCCESSFUL,
-//           },
-//         );
-//         if (!pet) {
-//           throw new BadRequestException('Pet not found');
-//         }
-//         this.server.to(roomId).emit('transactionConfirmed', transaction);
-//         this.roomConfirmations.delete(roomId);
-//       } catch (error) {
-//         throw new BadRequestException('Transaction creation failed');
-//       }
-//     } else {
-//       this.server.to(roomId).emit('confirmationReceived', { profileId });
-//     }
-//   }
+  private async verifyUser(socket: Socket) {
+    try {
+      const token = socket.handshake.headers.authorization;
+      if (!token) throw new UnauthorizedException();
 
-//   private async verifyUser(socket: Socket) {
-//     const token = socket.handshake.headers.authorization;
-//     if (!token) throw new UnauthorizedException('Token is missing');
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('authentication.secret'),
+      });
 
-//     try {
-//       const decoded = this.jwtService.verify(token, {
-//         secret: this.configService.get<string>('authentication.secret'),
-//       });
-
-//       return this.userService.getUserById(
-//         new Types.ObjectId(decoded._id),
-//       );
-//     } catch (error) {
-//       throw new UnauthorizedException('Invalid token');
-//     }
-//   }
-// }
+      const { _id } = decoded;
+      return await this.userService.getUserById(new Types.ObjectId(_id));
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { IUser } from 'src/modules/user/interfaces/user.interface';
 import { MatchService } from '../matches.service';
 import { IMatch } from '../matches.interface';
 import GetMatchPaginationDto from '../dtos/getPaginationMatch.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GetPaginationMatchUsecase {
@@ -18,7 +19,10 @@ export class GetPaginationMatchUsecase {
       const perPage = Number(data.perPage || 10);
 
       const filter = {
-        $or: [{ _adopterId: user._id }, { _caretakerId: user._id }],
+        $or: [
+          { _adopterId: new Types.ObjectId(user._id) },
+          { _caretakerId: new Types.ObjectId(user._id) },
+        ],
       };
 
       const [matches, total] = await this.matchService.getPagination(
