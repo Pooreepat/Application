@@ -31,6 +31,10 @@ export class GetPaginationPetUsecase {
         ];
       }
 
+      if (data.status) {
+        filter['status'] = data.status;
+      }
+
       const [pets, total] = await this.petService.getPagination(
         filter,
         page,
