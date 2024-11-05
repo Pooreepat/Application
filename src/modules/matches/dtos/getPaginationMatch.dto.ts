@@ -24,4 +24,13 @@ export default class GetMatchPaginationDto {
     message: 'คำค้นหาต้องเป็นตัวอักษร',
   })
   search?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString({
+    message: 'รหัสสัตว์เลี้ยงต้องเป็นตัวเลข',
+  })
+  _petId?: string;
 }

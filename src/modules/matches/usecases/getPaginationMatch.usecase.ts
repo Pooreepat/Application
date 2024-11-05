@@ -25,6 +25,10 @@ export class GetPaginationMatchUsecase {
         ],
       };
 
+      if (data._petId) {
+        filter['_petId'] = new Types.ObjectId(data._petId);
+      }
+
       const [matches, total] = await this.matchService.getPagination(
         filter,
         page,

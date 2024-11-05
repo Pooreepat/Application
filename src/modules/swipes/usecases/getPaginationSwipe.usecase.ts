@@ -6,6 +6,7 @@ import GetSwipePaginationDto from '../dtos/getPagination.dto';
 import { ISwipe } from '../swipes.interface';
 import { EUserRole } from 'src/modules/user/constants/user.constant';
 import { PetService } from 'src/modules/pet/pet.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GetPaginationSwipeUsecase {
@@ -33,7 +34,7 @@ export class GetPaginationSwipeUsecase {
           break;
         case EUserRole.AGENCY:
           if (data._petId) {
-            filter['_petId'] = data._petId;
+            filter['_petId'] = new Types.ObjectId(data._petId);
           }
           break;
         default:
@@ -45,10 +46,6 @@ export class GetPaginationSwipeUsecase {
         page,
         perPage,
       );
-
-      if (!swipes) {
-        throw new HttpException('Cannot get swipes', 500);
-      }
 
       return {
         data: swipes,

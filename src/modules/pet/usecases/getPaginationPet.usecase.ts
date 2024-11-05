@@ -31,18 +31,14 @@ export class GetPaginationPetUsecase {
         ];
       }
 
-      const [users, total] = await this.petService.getPagination(
+      const [pets, total] = await this.petService.getPagination(
         filter,
         page,
         perPage,
       );
 
-      if (!users) {
-        throw new HttpException('Cannot get user', 500);
-      }
-
       return {
-        data: users,
+        data: pets,
         total: total,
         page: page,
         perPage: perPage,
