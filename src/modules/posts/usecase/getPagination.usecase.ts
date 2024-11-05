@@ -11,12 +11,11 @@ export class GetPostsPaginationUsecase {
 
   public async execute(
     data: GetPostsPaginationDto,
-    user:IUser
+    user: IUser,
   ): Promise<HttpResponsePagination<IPost>> {
     try {
       const page = Number(data.page || 1);
       const perPage = Number(data.perPage || 10);
-
       const filter = {};
 
       if (data.status) {
@@ -28,14 +27,6 @@ export class GetPostsPaginationUsecase {
         page,
         perPage,
       );
-
-      if (!posts) {
-        throw new HttpException('Cannot get posts', 500);
-      }
-
-      if (!total) {
-        throw new HttpException('Cannot get total posts', 500);
-      }
 
       return {
         data: posts,

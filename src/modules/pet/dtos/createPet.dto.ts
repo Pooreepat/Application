@@ -16,8 +16,8 @@ export class CreatePetDto {
   @ApiProperty({
     description: 'Nickname of the pet, between 4-100 characters',
   })
-  @Length(4, 100, {
-    message: 'The nickname must be between 4-100 characters',
+  @Length(1, 200, {
+    message: 'The nickname must be between 1-200 characters',
   })
   nickname?: string;
 

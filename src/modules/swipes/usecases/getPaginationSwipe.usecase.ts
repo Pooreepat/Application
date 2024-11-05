@@ -32,11 +32,9 @@ export class GetPaginationSwipeUsecase {
           filter['_adopterId'] = user._id;
           break;
         case EUserRole.AGENCY:
-          const pets = await this.petService.findPetByCaretakerId(user._id);
-          if (!pets) {
-            throw new HttpException('Cannot get pet', 500);
+          if (data._petId) {
+            filter['_petId'] = data._petId;
           }
-          filter['_petId'] = { $in: pets.map((pet) => pet._id) };
           break;
         default:
           throw new HttpException('You do not have permission', 403);

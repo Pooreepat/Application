@@ -15,4 +15,13 @@ export default class GetSwipePaginationDto {
     message: 'จำนวนข้อมูลต่อหน้าต้องเป็นตัวเลข',
   })
   perPage?: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString({
+    message: 'รหัสสัตว์เลี้ยงต้องเป็นตัวเลข',
+  })
+  _petId?: string;
 }

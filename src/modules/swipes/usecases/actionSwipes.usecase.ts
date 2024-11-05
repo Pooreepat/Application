@@ -41,6 +41,14 @@ export class ActionSwipesUsecase {
             throw new HttpException('You do not have permission', 403);
           }
           break;
+        case EUserRole.USER:
+          if (!new Types.ObjectId(swipe._adopterId).equals(user._id)) {
+            throw new HttpException('You do not have permission', 403);
+          }
+          if (status !== 'rejected') {
+            throw new HttpException('You do not have permission', 403);
+          }
+          break;
         default:
           throw new HttpException('You do not have permission', 403);
       }

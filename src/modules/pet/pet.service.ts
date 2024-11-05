@@ -14,18 +14,42 @@ export class PetService {
     page: number,
     perPage: number,
   ): Promise<[PetDocument[], number]> {
-    const data = await this.petModel
-      .find(filterQuery)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * perPage)
-      .limit(perPage)
-      .lean();
+    const data = await this.petModel.aggregate([
+      {
+        $match: filterQuery,
+      },
+      {
+        $lookup: {
+          from: 'user',
+          localField: '_caretakerId',
+          foreignField: '_id',
+          as: 'caretaker',
+        },
+      },
+      { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+      { $sort: { createdAt: 1 } },
+      { $skip: (page - 1) * perPage },
+      { $limit: perPage },
+    ]);
     const total = await this.petModel.countDocuments(filterQuery);
     return [data, total];
   }
 
   public async getPetById(petId: Types.ObjectId): Promise<PetDocument> {
-    return this.petModel.findById(petId).lean();
+    const pet = await this.petModel.aggregate([
+      { $match: { _id: petId } },
+      {
+        $lookup: {
+          from: 'user',
+          localField: '_caretakerId',
+          foreignField: '_id',
+          as: 'caretaker',
+        },
+      },
+      { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+      { $limit: 1 },
+    ]);
+    return pet[0];
   }
 
   public async createPet(data: Partial<IPet>): Promise<PetDocument> {
@@ -63,6 +87,7 @@ export class PetService {
     const query: any = {
       _id: { $nin: excludePetIds },
       status: EPetStatus.UNADOPTED,
+      isHiddened: false,
       ...queryData,
     };
 
