@@ -65,6 +65,15 @@ export class TransactionGateway
     const match: IMatch = socket.data.match;
     const user: IUser = socket.data.user;
     if (!match || !user) return;
+    const room = this.rooms.get(match._id.toString());
+    if (!room) return;
+    const isCaretaker = match._caretakerId.equals(user._id);
+    if (isCaretaker) {
+      room.caretakerConfirmed = false;
+    } else {
+      room.adopterConfirmed = false;
+    }
+    this.server.to(match._id.toString()).emit('status', room);
   }
 
   @SubscribeMessage('joinRoom')
@@ -89,6 +98,9 @@ export class TransactionGateway
     this.server
       .to(matchId)
       .emit('userJoined', { userId: socket.data.user._id });
+
+    const room = this.rooms.get(matchId);
+    this.server.to(matchId).emit('status', room);
   }
 
   @SubscribeMessage('confirmParticipation')
@@ -110,21 +122,13 @@ export class TransactionGateway
       room.adopterConfirmed = true;
     }
 
-    if (room.caretakerConfirmed && room.adopterConfirmed) {
-      this.server
-        .to(match._id.toString())
-        .emit('confirmationStatus', { status: 'confirmedAll' });
-    } else {
-      this.server
-        .to(match._id.toString())
-        .emit('userConfirmed', { userId: user._id });
-    }
+    this.server.to(match._id.toString()).emit('status', room);
   }
 
   @SubscribeMessage('confirmTransactionByCaretaker')
   async sendImage(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: UpdateTransactionDto
+    @MessageBody() data: UpdateTransactionDto,
   ) {
     const { images } = data;
     if (images.length < 1) {
@@ -158,7 +162,7 @@ export class TransactionGateway
 
     this.server
       .to(match._id.toString())
-      .emit('confirmationStatus', { status: 'transactionConfirmed' });
+      .emit('confirmationStatus', { status: 'success' });
   }
 
   private async verifyUser(socket: Socket) {

@@ -36,6 +36,7 @@ export class UpdatePetUsecase {
           if (!new Types.ObjectId(pet._adopterId).equals(user._id)) {
             throw new HttpException('You do not have permission', 403);
           }
+          break;
         default:
           throw new HttpException('You do not have permission', 403);
       }
