@@ -159,7 +159,7 @@ export class TransactionGateway
     });
 
     await this.matchService.updateMatch(match._id, { isTransaction: true });
-
+    await this.matchService.removeMatches(match._petId, match._id);
     this.server
       .to(match._id.toString())
       .emit('confirmationStatus', { status: 'success' });
