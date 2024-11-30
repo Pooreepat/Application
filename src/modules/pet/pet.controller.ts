@@ -23,6 +23,7 @@ import { HttpResponsePagination } from 'src/interface/respones';
 import SearchPetDto from './dtos/searchPets.dto';
 import { SearchPetsUsecase } from './usecases/searchPets.usecase';
 import GetPetPaginationDto from './dtos/getPaginationPet.dto';
+import { GetPetByFaceIdUsecase } from './usecases/getPetByFaceId.usecase';
 
 @ApiTags('Pet')
 @ApiBearerAuth()
@@ -32,10 +33,20 @@ export class PetController {
   constructor(
     private readonly updatePetUsecase: UpdatePetUsecase,
     private readonly getPetByIdUsecase: GetPetByIdUsecase,
+    private readonly getPetByFaceIdUsecase: GetPetByFaceIdUsecase,
     private readonly getPaginationPetUsecase: GetPaginationPetUsecase,
     private readonly createPetUsecase: CreatePetUsecase,
     private readonly searchPetsUsecase: SearchPetsUsecase,
   ) {}
+
+  @Get('find-face-id/:id')
+  @ApiParam({ name: 'id', type: String, description: 'The id of the pet' })
+  public async getPetFaceById(
+    @Param('id') id: string,
+    @User() user: IUser,
+  ): Promise<IPet> {
+    return this.getPetByFaceIdUsecase.execute(id, user);
+  }
 
   @Post('search')
   public async searchPets(

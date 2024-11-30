@@ -12,12 +12,12 @@ export class CreatePetUsecase {
 
   public async execute(data: CreatePetDto, user: IUser): Promise<IPet> {
     try {
-      switch (user.role[0]) {
-        case EUserRole.AGENCY:
-          break;
-        default:
-          throw new HttpException('You do not have permission', 403);
-      }
+      // switch (user.role[0]) {
+      //   case EUserRole.AGENCY:
+      //     break;
+      //   default:
+      //     throw new HttpException('You do not have permission', 403);
+      // }
 
       const petCreate = await this.petService.createPet({
         _caretakerId: user._id,
@@ -33,6 +33,7 @@ export class CreatePetUsecase {
         vaccinationHistory: data.vaccinationHistory,
         theme: data.theme,
         isAlive: true,
+        faceId: Number(data.faceId),
         notes: data.notes,
         size: data.size,
         isHiddened: data.isHiddened,

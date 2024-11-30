@@ -52,6 +52,23 @@ export class PetService {
     return pet[0];
   }
 
+  public async getPetByFaceId(petFaceId: number): Promise<PetDocument> {
+    const pet = await this.petModel.aggregate([
+      { $match: { faceId: petFaceId } },
+      {
+        $lookup: {
+          from: 'user',
+          localField: '_caretakerId',
+          foreignField: '_id',
+          as: 'caretaker',
+        },
+      },
+      { $unwind: { path: '$caretaker', preserveNullAndEmptyArrays: true } },
+      { $limit: 1 },
+    ]);
+    return pet[0];
+  }
+
   public async createPet(data: Partial<IPet>): Promise<PetDocument> {
     return this.petModel.create(data);
   }

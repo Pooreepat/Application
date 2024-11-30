@@ -77,6 +77,9 @@ export class Pet {
   @Prop({ type: String, required: false })
   size?: string;
 
+  @Prop({ type: Number, required: false })
+  faceId?: number;
+
   @Prop({ type: Boolean, default: false })
   isHiddened: Boolean;
 

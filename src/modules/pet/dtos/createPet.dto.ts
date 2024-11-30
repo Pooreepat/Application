@@ -46,6 +46,13 @@ export class CreatePetDto {
   };
 
   @ApiProperty({
+    description: 'Face ID of the pet',
+  })
+  @IsNotEmpty()
+  @IsString()
+  faceId: string;
+
+  @ApiProperty({
     description: 'Species of the pet',
   })
   @IsNotEmpty()
